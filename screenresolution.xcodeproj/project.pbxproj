@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		EDE8DC3614086F5C007AB6BF /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = EDE8DC3514086F5C007AB6BF /* main.c */; };
+		EDE8DC3E1408719D007AB6BF /* ApplicationServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EDE8DC3D1408719D007AB6BF /* ApplicationServices.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -26,6 +27,7 @@
 		EDE8DC3114086F5C007AB6BF /* screenresolution */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = screenresolution; sourceTree = BUILT_PRODUCTS_DIR; };
 		EDE8DC3514086F5C007AB6BF /* main.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
 		EDE8DC3714086F5C007AB6BF /* screenresolution.1 */ = {isa = PBXFileReference; lastKnownFileType = text.man; path = screenresolution.1; sourceTree = "<group>"; };
+		EDE8DC3D1408719D007AB6BF /* ApplicationServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ApplicationServices.framework; path = System/Library/Frameworks/ApplicationServices.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -33,6 +35,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				EDE8DC3E1408719D007AB6BF /* ApplicationServices.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -42,6 +45,7 @@
 		EDE8DC2614086F5C007AB6BF = {
 			isa = PBXGroup;
 			children = (
+				EDE8DC3D1408719D007AB6BF /* ApplicationServices.framework */,
 				EDE8DC3414086F5C007AB6BF /* screenresolution */,
 				EDE8DC3214086F5C007AB6BF /* Products */,
 			);
@@ -146,6 +150,7 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				ONLY_ACTIVE_ARCH = NO;
 				SDKROOT = macosx;
 			};
 			name = Release;
@@ -182,7 +187,7 @@
 				EDE8DC3914086F5C007AB6BF /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
+			defaultConfigurationName = Debug;
 		};
 		EDE8DC3A14086F5C007AB6BF /* Build configuration list for PBXNativeTarget "screenresolution" */ = {
 			isa = XCConfigurationList;
@@ -191,6 +196,7 @@
 				EDE8DC3C14086F5C007AB6BF /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
 		};
 /* End XCConfigurationList section */
 	};
