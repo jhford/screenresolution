@@ -1,7 +1,6 @@
 /*
  * screenresolution
  * Set the screen resolution for the main display from the command line
- * Usage: screenresolution 1920 1200 32
  * Build: clang -framework ApplicationServices main.c -o screenresolution
  * 
  * John Ford <john@johnford.info>
@@ -12,6 +11,10 @@
 
 #include <ApplicationServices/ApplicationServices.h>
 
+// Don't know how realistic it is to have more than 10 at this point.
+// Feel free to remind me about 640k being enough :)
+#define MAX_DISPLAYS 10
+
 struct config{
     size_t w;
     size_t h;
@@ -21,11 +24,9 @@ struct config{
 void printError(char* msg);
 unsigned int setDisplayToMode (CGDirectDisplayID display, CGDisplayModeRef mode);
 unsigned int configureDisplay(CGDirectDisplayID display, struct config * config);
-unsigned int listCurrentMode(CGDirectDisplayID display);
-unsigned int listAvailableModes(CGDirectDisplayID display);
+unsigned int listCurrentMode(CGDirectDisplayID display, int displayNum);
+unsigned int listAvailableModes(CGDirectDisplayID display, int displayNum);
 unsigned int parseStringConfig(const char* string, struct config * out);
- 
-
 size_t bitDepth(CGDisplayModeRef mode);
 
 
@@ -36,20 +37,26 @@ int main (int argc, const char * argv[])
     
     if (argc == 1) {
         // By default, print out the main display's resolution
-        if (!listCurrentMode(mainDisplay)){
+        if (!listCurrentMode(mainDisplay, 0)){
             exitcode++;
         }
     } else if (argc == 2) {
-        if (strcmp(argv[1], "get-main") == 0){
-            if (!listCurrentMode(mainDisplay)){
-                exitcode++;
+        CGError rc;
+        uint32_t displayCount;
+        CGDirectDisplayID activeDisplays [MAX_DISPLAYS];
+        rc = CGGetActiveDisplayList(MAX_DISPLAYS, activeDisplays, &displayCount);
+        if (strcmp(argv[1], "get") == 0){
+            for (int d = 0; d < displayCount; d++){
+                if (!listCurrentMode(activeDisplays[d], d)){
+                    exitcode++;
+                }
             }
-        } else if (strcmp(argv[1], "list-main") == 0){
+        }/* else if (strcmp(argv[1], "list") == 0)
             if (!listAvailableModes(mainDisplay)){
                 exitcode++;
             }
-        } else {
-            printError("You must specify a command");
+        }*/ else {
+            fprintf(stderr, "I am sorry %s, but I cannot let you do that\n", getlogin());
             exitcode++;
         }
     } else if (argc == 3 && strcmp(argv[1], "set-main") == 0) {
@@ -59,8 +66,8 @@ int main (int argc, const char * argv[])
                 exitcode++;
             }
         } else {
+            fprintf(stderr, "Error: The mode '%s' could not be parsed\n", argv[2]);
             exitcode++;
-            fprintf(stderr, "Error: The mode '%s' couldn't be parsed\n", argv[2]);
         }
 
     } else {
@@ -146,27 +153,29 @@ unsigned int setDisplayToMode (CGDirectDisplayID display, CGDisplayModeRef mode)
     }
     return returncode;
 }
-unsigned int listCurrentMode(CGDirectDisplayID display){
+unsigned int listCurrentMode(CGDirectDisplayID display, int displayNum){
     unsigned int returncode = 1;
     CGDisplayModeRef currentMode = CGDisplayCopyDisplayMode(display);
     if (currentMode == NULL){
         printError("unable to copy current display mode");
         returncode = 0;
     }
-    printf("%lux%lux%lu\n", CGDisplayModeGetWidth(currentMode), 
+    printf("%d: %lux%lux%lu\n", 
+           displayNum,
+           CGDisplayModeGetWidth(currentMode), 
            CGDisplayModeGetHeight(currentMode),
            bitDepth(currentMode));
     CGDisplayModeRelease(currentMode);
     return returncode;
 }
 
-unsigned int listAvailableModes(CGDirectDisplayID display){
+unsigned int listAvailableModes(CGDirectDisplayID display, int displayNum){
     unsigned int returncode = 1;
     CFArrayRef allModes = CGDisplayCopyAllDisplayModes(display, NULL);
     if (allModes == NULL) {
         returncode = 0;
     }
-    printf("Available Modes\n");
+    printf("Available Modes on Display %d\n", displayNum);
     for (int i = 0; i < CFArrayGetCount(allModes) && returncode; i++) {
         CGDisplayModeRef mode = (CGDisplayModeRef) CFArrayGetValueAtIndex(allModes, i);
         printf("  %lux%lux%lu\n",
