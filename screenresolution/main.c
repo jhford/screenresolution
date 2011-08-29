@@ -23,7 +23,7 @@ unsigned int setDisplayToMode (CGDirectDisplayID display, CGDisplayModeRef mode)
 unsigned int configureDisplay(CGDirectDisplayID display, struct config * config);
 unsigned int listCurrentMode(CGDirectDisplayID display);
 unsigned int listAvailableModes(CGDirectDisplayID display);
-unsigned int parseStringConfig(char* string, struct config * out);
+unsigned int parseStringConfig(const char* string, struct config * out);
  
 
 size_t bitDepth(CGDisplayModeRef mode);
@@ -32,9 +32,6 @@ size_t bitDepth(CGDisplayModeRef mode);
 int main (int argc, const char * argv[])
 {
     unsigned int exitcode = 0; 
-    size_t w;
-    size_t h;
-    size_t d;
     CGDirectDisplayID mainDisplay = CGMainDisplayID();
     
     if (argc == 1) {
@@ -55,14 +52,17 @@ int main (int argc, const char * argv[])
             printError("You must specify a command");
             exitcode++;
         }
-    } else if (argc == 5 && strcmp(argv[1], "set-main") == 0) {
-        w = atoi(argv[2]);
-        h = atoi(argv[3]);
-        d = atoi(argv[4]);
-        struct config newConfig = {w,h,d};
-        if (!configureDisplay(mainDisplay, &newConfig)){
+    } else if (argc == 3 && strcmp(argv[1], "set-main") == 0) {
+        struct config newConfig;
+        if (parseStringConfig(argv[2], &newConfig)){
+            if (!configureDisplay(mainDisplay, &newConfig)){
+                exitcode++;
+            }
+        } else {
             exitcode++;
+            fprintf(stderr, "Error: The mode '%s' couldn't be parsed\n", argv[2]);
         }
+
     } else {
         printError("Use it the right way!");
         exitcode++;
@@ -177,7 +177,7 @@ unsigned int listAvailableModes(CGDirectDisplayID display){
     return returncode;
 }
 
-unsigned int parseStringConfig(char* string, struct config * out){
+unsigned int parseStringConfig(const char* string, struct config * out){
     unsigned int rc;
     size_t w;
     size_t h;
