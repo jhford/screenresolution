@@ -8,6 +8,7 @@
  */
 
 #include <ApplicationServices/ApplicationServices.h>
+#include "version.h"
 
 // Don't know how realistic it is to have more than 10 at this point.
 // Feel free to remind me about 640k being enough :)
@@ -37,6 +38,7 @@ int main (int argc, const char * argv[]) {
         CGError rc;
         uint32_t displayCount;
         CGDirectDisplayID activeDisplays [MAX_DISPLAYS];
+        int d;
         rc = CGGetActiveDisplayList(MAX_DISPLAYS, activeDisplays, &displayCount);
         if (rc != kCGErrorSuccess) {
             fprintf(stderr, "Error: failed to get list of active displays");
@@ -44,7 +46,7 @@ int main (int argc, const char * argv[]) {
         }
         int keepgoing = 1;
         // This loop should probably be in another function
-        for (int d = 0; d < displayCount && keepgoing; d++){
+        for (d = 0; d < displayCount && keepgoing; d++){
             if (strcmp(argv[1], "get") == 0) {
                 if (!listCurrentMode(activeDisplays[d], d)){
                     exitcode++;
@@ -66,6 +68,9 @@ int main (int argc, const char * argv[]) {
                         exitcode++;
                     }
                 }
+            } else if (strcmp(argv[1], "-version") == 0) {
+                printf("screenresolution version %s\n", VERSION);
+                keepgoing = 0;
             } else {
                 fprintf(stderr, "I'm sorry %s.  I'm affraid I can't do that\n", getlogin());   
                 exitcode++;
@@ -105,7 +110,8 @@ unsigned int configureDisplay(CGDirectDisplayID display, struct config * config,
     size_t ph; // possible height
     size_t pd; // possible depth
     int looking = 1; // used to decide whether to continue looking for modes
-    for (int i = 0 ; i < CFArrayGetCount(allModes) && looking ; i++) {
+    int i;
+    for (i = 0 ; i < CFArrayGetCount(allModes) && looking ; i++) {
         CGDisplayModeRef possibleMode = (CGDisplayModeRef) CFArrayGetValueAtIndex(allModes, i);
         pw = CGDisplayModeGetWidth(possibleMode);
         ph = CGDisplayModeGetHeight(possibleMode);
@@ -169,12 +175,13 @@ unsigned int listCurrentMode(CGDirectDisplayID display, int displayNum){
 
 unsigned int listAvailableModes(CGDirectDisplayID display, int displayNum){
     unsigned int returncode = 1;
+    int i;
     CFArrayRef allModes = CGDisplayCopyAllDisplayModes(display, NULL);
     if (allModes == NULL) {
         returncode = 0;
     }
     printf("Available Modes on Display %d\n", displayNum);
-    for (int i = 0 ; i < CFArrayGetCount(allModes) && returncode ; i++) {
+    for (i = 0 ; i < CFArrayGetCount(allModes) && returncode ; i++) {
         CGDisplayModeRef mode = (CGDisplayModeRef) CFArrayGetValueAtIndex(allModes, i);
         //This formatting is functional but it ought to be done less poorly
         if (i % MODES_PER_LINE == 0) {

@@ -24,6 +24,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		EDA9B3C7140C29D6003C7DAD /* Makefile */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.make; path = Makefile; sourceTree = "<group>"; };
 		EDE8DC3114086F5C007AB6BF /* screenresolution */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = screenresolution; sourceTree = BUILT_PRODUCTS_DIR; };
 		EDE8DC3514086F5C007AB6BF /* main.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
 		EDE8DC3714086F5C007AB6BF /* screenresolution.1 */ = {isa = PBXFileReference; lastKnownFileType = text.man; path = screenresolution.1; sourceTree = "<group>"; };
@@ -63,6 +64,7 @@
 			isa = PBXGroup;
 			children = (
 				EDE8DC3514086F5C007AB6BF /* main.c */,
+				EDA9B3C7140C29D6003C7DAD /* Makefile */,
 				EDE8DC3714086F5C007AB6BF /* screenresolution.1 */,
 			);
 			path = screenresolution;
