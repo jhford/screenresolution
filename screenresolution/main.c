@@ -4,9 +4,6 @@
  * Build: clang -framework ApplicationServices main.c -o screenresolution
  * 
  * John Ford <john@johnford.info>
- * todo:
- *   -make printError easier for making strings
- *   -support more than one monitor
  */
 
 #include <ApplicationServices/ApplicationServices.h>
@@ -15,15 +12,17 @@
 // Feel free to remind me about 640k being enough :)
 #define MAX_DISPLAYS 10
 
+//Number of modes to list per line
+#define MODES_PER_LINE 4
+
 struct config{
     size_t w;
     size_t h;
     size_t d;
 };
 
-void printError(char* msg);
 unsigned int setDisplayToMode (CGDirectDisplayID display, CGDisplayModeRef mode);
-unsigned int configureDisplay(CGDirectDisplayID display, struct config * config);
+unsigned int configureDisplay(CGDirectDisplayID display, struct config * config, int displayNum);
 unsigned int listCurrentMode(CGDirectDisplayID display, int displayNum);
 unsigned int listAvailableModes(CGDirectDisplayID display, int displayNum);
 unsigned int parseStringConfig(const char* string, struct config * out);
@@ -33,52 +32,57 @@ size_t bitDepth(CGDisplayModeRef mode);
 int main (int argc, const char * argv[])
 {
     unsigned int exitcode = 0; 
-    CGDirectDisplayID mainDisplay = CGMainDisplayID();
-    
-    if (argc == 1) {
-        // By default, print out the main display's resolution
-        if (!listCurrentMode(mainDisplay, 0)){
-            exitcode++;
-        }
-    } else if (argc == 2) {
+
+    if (argc == 2) {
         CGError rc;
         uint32_t displayCount;
         CGDirectDisplayID activeDisplays [MAX_DISPLAYS];
         rc = CGGetActiveDisplayList(MAX_DISPLAYS, activeDisplays, &displayCount);
-        if (strcmp(argv[1], "get") == 0){
-            for (int d = 0; d < displayCount; d++){
+        if (rc != kCGErrorSuccess) {
+            fprintf(stderr, "Error: failed to get list of active displays");
+            exitcode++;
+        }
+        int keepgoing = 1;
+        for (int d = 0; d < displayCount && keepgoing; d++){
+            if (strcmp(argv[1], "get") == 0){
                 if (!listCurrentMode(activeDisplays[d], d)){
                     exitcode++;
                 }
-            }
-        }/* else if (strcmp(argv[1], "list") == 0)
-            if (!listAvailableModes(mainDisplay)){
+            } else if (strcmp(argv[1], "list") == 0){
+                if (!listAvailableModes(activeDisplays[d], d)){
+                    exitcode++;
+                }
+            } else {
                 exitcode++;
             }
-        }*/ else {
-            fprintf(stderr, "I am sorry %s, but I cannot let you do that\n", getlogin());
+        }
+
+    } else if (argc >= 3 && strcmp(argv[1], "set-main") == 0) {
+        CGError rc;
+        uint32_t displayCount;
+        CGDirectDisplayID activeDisplays [MAX_DISPLAYS];
+        rc = CGGetActiveDisplayList(MAX_DISPLAYS, activeDisplays, &displayCount);
+        if (rc != kCGErrorSuccess) {
+            fprintf(stderr, "Error: failed to get list of active displays");
             exitcode++;
         }
-    } else if (argc == 3 && strcmp(argv[1], "set-main") == 0) {
-        struct config newConfig;
-        if (parseStringConfig(argv[2], &newConfig)){
-            if (!configureDisplay(mainDisplay, &newConfig)){
+        int keepgoing = 1;
+        for (int d = 0; d < displayCount && d < argc - 2 && keepgoing; d++){
+            struct config newConfig;
+            if (parseStringConfig(argv[d+2], &newConfig)){
+                if (!configureDisplay(activeDisplays[d], &newConfig, d)){
+                    exitcode++;
+                }
+            } else {
                 exitcode++;
             }
-        } else {
-            fprintf(stderr, "Error: The mode '%s' could not be parsed\n", argv[2]);
-            exitcode++;
         }
 
     } else {
-        printError("Use it the right way!");
+        fprintf(stderr, "Error: Use it the right way!");
         exitcode++;
     }
     return exitcode;
-}
-
-void printError(char* msg){
-    fprintf(stderr, "Error: %s\n", msg);
 }
 
 size_t bitDepth(CGDisplayModeRef mode) {
@@ -96,11 +100,11 @@ size_t bitDepth(CGDisplayModeRef mode) {
 	return depth;
 }
 
-unsigned int configureDisplay(CGDirectDisplayID display, struct config * config){
+unsigned int configureDisplay(CGDirectDisplayID display, struct config * config, int displayNum){
     unsigned int returncode = 1;
     CFArrayRef allModes = CGDisplayCopyAllDisplayModes(display, NULL);
     if (allModes == NULL){
-        printError("failed trying to look up all modes for display");
+        fprintf(stderr, "Error: failed trying to look up modes for display %d", displayNum);
     }
     CGDisplayModeRef newMode = NULL;
     size_t pw; // possible width
@@ -118,7 +122,7 @@ unsigned int configureDisplay(CGDirectDisplayID display, struct config * config)
         }
     }
     if (newMode != NULL) {
-        printf("Setting mode to %lux%lux%lu\n", pw,ph,pd);
+        printf("Setting mode on display %d to %lux%lux%lu\n", displayNum, pw,ph,pd);
         setDisplayToMode(display,newMode);
     } else {
         fprintf(stderr, "Error: requested mode (%lux%lux%lu) is not available\n", config->w, config->h, config->d);
@@ -134,20 +138,20 @@ unsigned int setDisplayToMode (CGDirectDisplayID display, CGDisplayModeRef mode)
     CGDisplayConfigRef config;
     rc = CGBeginDisplayConfiguration(&config);
     if (rc != kCGErrorSuccess) {
-        printError("failed CGBeginDisplayConfiguration");
+        fprintf(stderr, "Error: failed CGBeginDisplayConfiguration");
         returncode = 0;
     }
     if (returncode){
         rc = CGConfigureDisplayWithDisplayMode(config, display, mode, NULL);
         if (rc != kCGErrorSuccess) {
-            printError("failed CGConfigureDisplayWithDisplayMode");
+            fprintf(stderr, "Error: failed CGConfigureDisplayWithDisplayMode");
             returncode = 0;
         }
     }
     if (returncode){
         rc = CGCompleteDisplayConfiguration(config, kCGConfigureForSession );
         if (rc != kCGErrorSuccess) {
-            printf("failed CGCompleteDisplayConfiguration");
+            fprintf(stderr, "Error: failed CGCompleteDisplayConfiguration");
             returncode = 0;
         }
     }
@@ -157,7 +161,7 @@ unsigned int listCurrentMode(CGDirectDisplayID display, int displayNum){
     unsigned int returncode = 1;
     CGDisplayModeRef currentMode = CGDisplayCopyDisplayMode(display);
     if (currentMode == NULL){
-        printError("unable to copy current display mode");
+        fprintf(stderr, "Error: unable to copy current display mode");
         returncode = 0;
     }
     printf("%d: %lux%lux%lu\n", 
@@ -178,11 +182,21 @@ unsigned int listAvailableModes(CGDirectDisplayID display, int displayNum){
     printf("Available Modes on Display %d\n", displayNum);
     for (int i = 0; i < CFArrayGetCount(allModes) && returncode; i++) {
         CGDisplayModeRef mode = (CGDisplayModeRef) CFArrayGetValueAtIndex(allModes, i);
-        printf("  %lux%lux%lu\n",
+        //This formatting is functional but it ought to be done less poorly
+        if (i % MODES_PER_LINE == 0) {
+            printf("  ");
+        } else {
+            printf("\t");
+        }
+        printf("%lux%lux%lu ",
                CGDisplayModeGetWidth(mode),
                CGDisplayModeGetHeight(mode),
                bitDepth(mode));
+        if (i % MODES_PER_LINE == MODES_PER_LINE - 1) {
+            printf("\n");
+        }
     }
+    printf("\n");
     return returncode;
 }
 
@@ -194,6 +208,7 @@ unsigned int parseStringConfig(const char* string, struct config * out){
     int numConverted = sscanf(string, "%lux%lux%lu", &w, &h, &d);
     if (numConverted != 3) {
         rc = 0;
+        fprintf(stderr, "Error: the mode '%s' couldn't be parsed", string);
     } else{
         out->w = w;
         out->h = h;
