@@ -46,7 +46,7 @@ int main (int argc, const char * argv[]) {
         }
         int keepgoing = 1;
         // This loop should probably be in another function
-        for (d = 0; d < displayCount && keepgoing; d++){
+        for (d = 0; d < displayCount && d < argc - 2 && keepgoing; d++){
             if (strcmp(argv[1], "get") == 0) {
                 if (!listCurrentMode(activeDisplays[d], d)){
                     exitcode++;
