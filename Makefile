@@ -77,11 +77,16 @@ pkg: screenresolution
 		--out "screenresolution-$(VERSION).pkg" --target 10.5 \
 		--title "screenresolution $(VERSION)" \
 		--version $(VERSION)
+	rm -f screenresolution.pkg
+	ln -s screenresolution-$(VERSION).pkg screenresolution.pkg
 
 dmg: pkg
 	mkdir -p dmgroot
 	cp screenresolution-$(VERSION).pkg dmgroot/
+	rm -f screenresolution-$(VERSION).dmg
 	hdiutil makehybrid -hfs -hfs-volume-name "screenresolution $(VERSION)" \
 		-o "screenresolution-$(VERSION).dmg" dmgroot/
+	rm -f screenresolution.dmg
+	ln -s screenresolution-$(VERSION).dmg screenresolution.dmg
 
 .PHONY: test pkg dmg install build clean reallyclean
