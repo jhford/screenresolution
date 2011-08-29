@@ -12,11 +12,18 @@
 
 #include <ApplicationServices/ApplicationServices.h>
 
+typedef struct {
+    size_t w;
+    size_t h;
+    size_t d;
+} Config;
+
 void printError(char* msg);
 unsigned int setDisplayToMode (CGDirectDisplayID display, CGDisplayModeRef mode);
-unsigned int setDisplay(CGDirectDisplayID display, size_t w, size_t h, size_t d);
+unsigned int configureDisplay(CGDirectDisplayID display, Config config);
 unsigned int listCurrentMode(CGDirectDisplayID display);
 unsigned int listAvailableModes(CGDirectDisplayID display);
+ 
 
 size_t bitDepth(CGDisplayModeRef mode);
 
@@ -51,7 +58,8 @@ int main (int argc, const char * argv[])
         w = atoi(argv[2]);
         h = atoi(argv[3]);
         d = atoi(argv[4]);
-        if (!setDisplay(mainDisplay, w, h, d)){
+        Config newConfig = {w,h,d};
+        if (!configureDisplay(mainDisplay, newConfig)){
             exitcode++;
         }
     } else {
@@ -80,7 +88,7 @@ size_t bitDepth(CGDisplayModeRef mode) {
 	return depth;
 }
 
-unsigned int setDisplay(CGDirectDisplayID display, size_t w, size_t h, size_t d){
+unsigned int configureDisplay(CGDirectDisplayID display, Config config){
     unsigned int returncode = 1;
     CFArrayRef allModes = CGDisplayCopyAllDisplayModes(display, NULL);
     if (allModes == NULL){
@@ -96,7 +104,7 @@ unsigned int setDisplay(CGDirectDisplayID display, size_t w, size_t h, size_t d)
         pw = CGDisplayModeGetWidth(possibleMode);
         ph = CGDisplayModeGetHeight(possibleMode);
         pd = bitDepth(possibleMode);
-        if ( pw == w && ph == h && pd == d ) {
+        if ( pw == config.w && ph == config.h && pd == config.d ) {
             looking = false; // Stop looking for more modes!
             newMode = possibleMode;
         }
@@ -105,7 +113,7 @@ unsigned int setDisplay(CGDirectDisplayID display, size_t w, size_t h, size_t d)
         printf("Setting mode to %lux%lux%lu\n", pw,ph,pd);
         setDisplayToMode(display,newMode);
     } else {
-        fprintf(stderr, "Error: requested mode (%lux%lux%lu) is not available\n",w,h,d);
+        fprintf(stderr, "Error: requested mode (%lux%lux%lu) is not available\n", config.w, config.h, config.d);
         returncode = 0;
     }
     return returncode;
