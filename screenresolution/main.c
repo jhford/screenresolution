@@ -12,17 +12,18 @@
 
 #include <ApplicationServices/ApplicationServices.h>
 
-typedef struct {
+struct config{
     size_t w;
     size_t h;
     size_t d;
-} Config;
+};
 
 void printError(char* msg);
 unsigned int setDisplayToMode (CGDirectDisplayID display, CGDisplayModeRef mode);
-unsigned int configureDisplay(CGDirectDisplayID display, Config config);
+unsigned int configureDisplay(CGDirectDisplayID display, struct config * config);
 unsigned int listCurrentMode(CGDirectDisplayID display);
 unsigned int listAvailableModes(CGDirectDisplayID display);
+unsigned int parseStringConfig(char* string, struct config * out);
  
 
 size_t bitDepth(CGDisplayModeRef mode);
@@ -58,8 +59,8 @@ int main (int argc, const char * argv[])
         w = atoi(argv[2]);
         h = atoi(argv[3]);
         d = atoi(argv[4]);
-        Config newConfig = {w,h,d};
-        if (!configureDisplay(mainDisplay, newConfig)){
+        struct config newConfig = {w,h,d};
+        if (!configureDisplay(mainDisplay, &newConfig)){
             exitcode++;
         }
     } else {
@@ -88,7 +89,7 @@ size_t bitDepth(CGDisplayModeRef mode) {
 	return depth;
 }
 
-unsigned int configureDisplay(CGDirectDisplayID display, Config config){
+unsigned int configureDisplay(CGDirectDisplayID display, struct config * config){
     unsigned int returncode = 1;
     CFArrayRef allModes = CGDisplayCopyAllDisplayModes(display, NULL);
     if (allModes == NULL){
@@ -104,7 +105,7 @@ unsigned int configureDisplay(CGDirectDisplayID display, Config config){
         pw = CGDisplayModeGetWidth(possibleMode);
         ph = CGDisplayModeGetHeight(possibleMode);
         pd = bitDepth(possibleMode);
-        if ( pw == config.w && ph == config.h && pd == config.d ) {
+        if ( pw == config->w && ph == config->h && pd == config->d ) {
             looking = false; // Stop looking for more modes!
             newMode = possibleMode;
         }
@@ -113,7 +114,7 @@ unsigned int configureDisplay(CGDirectDisplayID display, Config config){
         printf("Setting mode to %lux%lux%lu\n", pw,ph,pd);
         setDisplayToMode(display,newMode);
     } else {
-        fprintf(stderr, "Error: requested mode (%lux%lux%lu) is not available\n", config.w, config.h, config.d);
+        fprintf(stderr, "Error: requested mode (%lux%lux%lu) is not available\n", config->w, config->h, config->d);
         returncode = 0;
     }
     return returncode;
@@ -174,4 +175,21 @@ unsigned int listAvailableModes(CGDirectDisplayID display){
                bitDepth(mode));
     }
     return returncode;
+}
+
+unsigned int parseStringConfig(char* string, struct config * out){
+    unsigned int rc;
+    size_t w;
+    size_t h;
+    size_t d;
+    int numConverted = sscanf(string, "%lux%lux%lu", &w, &h, &d);
+    if (numConverted != 3) {
+        rc = 0;
+    } else{
+        out->w = w;
+        out->h = h;
+        out->d = d;
+        rc = 1;
+    }
+    return rc;
 }
