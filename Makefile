@@ -13,7 +13,7 @@ PREFIX=/usr/local
 ORIG_RES=1920x1200x32
 TEST_RES=800x600x32
 
-VERSION=1.2dev
+VERSION=1.2
 
 CC=clang
 LIPO=lipo
@@ -63,6 +63,7 @@ test: screenresolution
 	sleep 1
 	./screenresolution get | grep "Display 0: $(ORIG_RES)"
 	./screenresolution get | grep "Display 1: $(ORIG_RES)"
+	@echo If you got this far, I think it works!
 
 install: screenresolution
 	mkdir -p $(DESTDIR)/$(PREFIX)/bin

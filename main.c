@@ -1,10 +1,20 @@
 /*
- * screenresolution
- * Set the screen resolution for the main display from the command line
- *
- * Build: clang -framework ApplicationServices main.c -o screenresolution
- *
- * John Ford <john@johnford.info>
+ * screenresolution sets the screen resolution on Mac computers
+ * Copyright (C) 2011  John Ford <john@johnford.info>
+ *  
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * version 2 as published by the Free Software Foundation.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+ * 02110-1301, USA.
  */
 
 #include <ApplicationServices/ApplicationServices.h>
@@ -46,7 +56,7 @@ int main (int argc, const char * argv[]) {
         }
         int keepgoing = 1;
         // This loop should probably be in another function
-        for (d = 0; d < displayCount && d < argc - 2 && keepgoing; d++){
+        for (d = 0; d < displayCount && keepgoing; d++){
             if (strcmp(argv[1], "get") == 0) {
                 if (!listCurrentMode(activeDisplays[d], d)){
                     exitcode++;
@@ -56,7 +66,7 @@ int main (int argc, const char * argv[]) {
                     exitcode++;
                 }
             } else if (strcmp(argv[1], "set") == 0) {
-                if (strcmp(argv[d+2], "skip") == 0) {
+                if (strcmp(argv[d+2], "skip") == 0 && d < argc - 2) {
                     printf("Skipping display %d\n", d);
                 } else {
                     struct config newConfig;
@@ -69,7 +79,7 @@ int main (int argc, const char * argv[]) {
                     }
                 }
             } else if (strcmp(argv[1], "-version") == 0) {
-                printf("screenresolution version %s\n", VERSION);
+                printf("screenresolution version %s\nLicensed under GPLv2\n", VERSION);
                 keepgoing = 0;
             } else {
                 fprintf(stderr, "I'm sorry %s.  I'm affraid I can't do that\n", getlogin());   
