@@ -1,3 +1,4 @@
+// vim: ts=4:sw=4
 /*
  * screenresolution sets the screen resolution on Mac computers
  * Copyright (C) 2011  John Ford <john@johnford.info>
