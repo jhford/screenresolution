@@ -49,15 +49,23 @@ int main(int argc, const char *argv[]) {
         CGError rc;
         uint32_t displayCount = 0;
         uint32_t activeDisplayCount = 0;
-        // FIXME this hardcoded 10 needs to be converted to
-        // a dynamic array
-        CGDirectDisplayID activeDisplays[10];
+        CGDirectDisplayID *activeDisplays = NULL;
 
         rc = CGGetActiveDisplayList(0, NULL, &activeDisplayCount);
+        if (rc != kCGErrorSuccess) {
+            fprintf(stderr, "Error: failed to get list of active displays");
+            return 1;
+        }
+        // Allocate storage for the next CGGetActiveDisplayList call
+        activeDisplays = (CGDirectDisplayID *) malloc(activeDisplayCount * sizeof(CGDirectDisplayID));
+        if (activeDisplays == NULL) {
+            fprintf(stderr, "Error: could not allocate memory for display list\n");
+            return 1;
+        }
         rc = CGGetActiveDisplayList(activeDisplayCount, activeDisplays, &displayCount);
         if (rc != kCGErrorSuccess) {
             fprintf(stderr, "Error: failed to get list of active displays");
-            exitcode++;
+            return 1;
         }
 
         // This loop should probably be in another function.
@@ -94,6 +102,8 @@ int main(int argc, const char *argv[]) {
                 keepgoing = 0;
             }
         }
+        free(activeDisplays);
+        activeDisplays = NULL;
     } else {
         fprintf(stderr, "Why failed? Because usage.\n");
         exitcode++;
