@@ -131,6 +131,7 @@ size_t bitDepth(CGDisplayModeRef mode) {
     } else if (kCFCompareEqualTo == CFStringCompare(pixelEncoding, CFSTR(IO8BitIndexedPixels), kCFCompareCaseInsensitive)) {
         depth = 8;
     }
+    CFRelease(pixelEncoding);
     return depth;
 }
 
