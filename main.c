@@ -21,10 +21,6 @@
 #include <ApplicationServices/ApplicationServices.h>
 #include "version.h"
 
-// Don't know how realistic it is to have more than 10 at this point.
-// Feel free to remind me about 640k being enough :)
-#define MAX_DISPLAYS 10
-
 // Number of modes to list per line.
 #define MODES_PER_LINE 4
 
@@ -51,10 +47,14 @@ int main(int argc, const char *argv[]) {
         int d;
         int keepgoing = 1;
         CGError rc;
-        uint32_t displayCount;
-        CGDirectDisplayID activeDisplays[MAX_DISPLAYS];
+        uint32_t displayCount = 0;
+        uint32_t activeDisplayCount = 0;
+        // FIXME this hardcoded 10 needs to be converted to
+        // a dynamic array
+        CGDirectDisplayID activeDisplays[10];
 
-        rc = CGGetActiveDisplayList(MAX_DISPLAYS, activeDisplays, &displayCount);
+        rc = CGGetActiveDisplayList(0, NULL, &activeDisplayCount);
+        rc = CGGetActiveDisplayList(activeDisplayCount, activeDisplays, &displayCount);
         if (rc != kCGErrorSuccess) {
             fprintf(stderr, "Error: failed to get list of active displays");
             exitcode++;
