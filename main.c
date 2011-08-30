@@ -115,7 +115,7 @@ size_t bitDepth(CGDisplayModeRef mode) {
     size_t depth = 0;
 	CFStringRef pixelEncoding = CGDisplayModeCopyPixelEncoding(mode);
     // my numerical representation for kIO16BitFloatPixels and kIO32bitFloatPixels
-    // are made up and possible non-sensical
+    // are made up and possibly non-sensical
     if (kCFCompareEqualTo == CFStringCompare(pixelEncoding, CFSTR(kIO32BitFloatPixels), kCFCompareCaseInsensitive)) {
         depth = 96;
     } else if (kCFCompareEqualTo == CFStringCompare(pixelEncoding, CFSTR(kIO64BitDirectPixels), kCFCompareCaseInsensitive)) {
@@ -161,6 +161,7 @@ unsigned int configureDisplay(CGDirectDisplayID display, struct config *config, 
             newMode = possibleMode;
         }
     }
+    CFRelease(allModes);
     if (newMode != NULL) {
         printf("Setting mode on display %d to %lux%lux%lu\n",
                 displayNum, pw, ph, pd);
@@ -237,6 +238,7 @@ unsigned int listAvailableModes(CGDirectDisplayID display, int displayNum) {
             printf("\n");
         }
     }
+    CFRelease(allModes);
     printf("\n");
     return returncode;
 }
