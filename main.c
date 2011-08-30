@@ -102,16 +102,24 @@ int main(int argc, const char *argv[]) {
 size_t bitDepth(CGDisplayModeRef mode) {
     size_t depth = 0;
 	CFStringRef pixelEncoding = CGDisplayModeCopyPixelEncoding(mode);
-	if (kCFCompareEqualTo == CFStringCompare(pixelEncoding, CFSTR(IO32BitDirectPixels), kCFCompareCaseInsensitive)) {
-		depth = 32;
+    // my numerical representation for kIO16BitFloatPixels and kIO32bitFloatPixels
+    // are made up and possible non-sensical
+    if (kCFCompareEqualTo == CFStringCompare(pixelEncoding, CFSTR(kIO32BitFloatPixels), kCFCompareCaseInsensitive)) {
+        depth = 96;
+    } else if (kCFCompareEqualTo == CFStringCompare(pixelEncoding, CFSTR(kIO64BitDirectPixels), kCFCompareCaseInsensitive)) {
+        depth = 64;
+    } else if (kCFCompareEqualTo == CFStringCompare(pixelEncoding, CFSTR(kIO16BitFloatPixels), kCFCompareCaseInsensitive)) {
+        depth = 48;
+    } else if (kCFCompareEqualTo == CFStringCompare(pixelEncoding, CFSTR(IO32BitDirectPixels), kCFCompareCaseInsensitive)) {
+        depth = 32;
+    } else if (kCFCompareEqualTo == CFStringCompare(pixelEncoding, CFSTR(kIO30BitDirectPixels), kCFCompareCaseInsensitive)) {
+        depth = 30;
+    } else if (kCFCompareEqualTo == CFStringCompare(pixelEncoding, CFSTR(IO16BitDirectPixels), kCFCompareCaseInsensitive)) {
+        depth = 16;
+    } else if (kCFCompareEqualTo == CFStringCompare(pixelEncoding, CFSTR(IO8BitIndexedPixels), kCFCompareCaseInsensitive)) {
+        depth = 8;
     }
-	else if (kCFCompareEqualTo == CFStringCompare(pixelEncoding, CFSTR(IO16BitDirectPixels), kCFCompareCaseInsensitive)) {
-		depth = 16;
-    }
-	else if (kCFCompareEqualTo == CFStringCompare(pixelEncoding, CFSTR(IO8BitIndexedPixels), kCFCompareCaseInsensitive)) {
-		depth = 8;
-    }
-	return depth;
+    return depth;
 }
 
 unsigned int configureDisplay(CGDirectDisplayID display, struct config *config, int displayNum) {
