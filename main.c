@@ -71,16 +71,18 @@ int main(int argc, const char *argv[]) {
                     exitcode++;
                 }
             } else if (strcmp(argv[1], "set") == 0) {
-                if (strcmp(argv[d+2], "skip") == 0 && d < argc - 2) {
-                    printf("Skipping display %d\n", d);
-                } else {
-                    struct config newConfig;
-                    if (parseStringConfig(argv[d + 2], &newConfig)) {
-                        if (!configureDisplay(activeDisplays[d], &newConfig, d)) {
+                if (d < (argc - 2)) {
+                    if (strcmp(argv[d+2], "skip") == 0 && d < (argc - 2)) {
+                        printf("Skipping display %d\n", d);
+                    } else {
+                        struct config newConfig;
+                        if (parseStringConfig(argv[d + 2], &newConfig)) {
+                            if (!configureDisplay(activeDisplays[d], &newConfig, d)) {
+                                exitcode++;
+                            }
+                        } else {
                             exitcode++;
                         }
-                    } else {
-                        exitcode++;
                     }
                 }
             } else if (strcmp(argv[1], "-version") == 0) {
