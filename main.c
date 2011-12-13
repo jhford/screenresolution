@@ -39,8 +39,24 @@ unsigned int listAvailableModes(CGDirectDisplayID display, int displayNum);
 unsigned int parseStringConfig(const char *string, struct config *out);
 size_t bitDepth(CGDisplayModeRef mode);
 
+// http://stackoverflow.com/questions/3060121/core-foundation-equivalent-for-nslog/3062319#3062319
+void NSLog(CFStringRef format, ...);
+
+
 
 int main(int argc, const char *argv[]) {
+    // http://developer.apple.com/library/IOs/#documentation/CoreFoundation/Conceptual/CFStrings/Articles/MutableStrings.html
+    int i;
+    CFMutableStringRef args = CFStringCreateMutable(NULL, 0);
+    CFStringEncoding encoding = CFStringGetSystemEncoding();
+    CFStringAppend(args, CFSTR("starting screenresolution argv="));
+    for (i = 0 ; i < argc ; i++) {
+        CFStringAppendCString(args, argv[i], encoding);
+        // If I were so motivated, I'd probably use CFStringAppendFormat
+        CFStringAppend(args, CFSTR(" "));
+    }
+    // This has security implications.  Will look at that later
+    NSLog(CFSTR("%@"), args);
     unsigned int exitcode = 0;
 
     if (argc > 1) {
@@ -53,18 +69,18 @@ int main(int argc, const char *argv[]) {
 
         rc = CGGetActiveDisplayList(0, NULL, &activeDisplayCount);
         if (rc != kCGErrorSuccess) {
-            fprintf(stderr, "Error: failed to get list of active displays");
+            NSLog(CFSTR("%s"), "Error: failed to get list of active displays");
             return 1;
         }
         // Allocate storage for the next CGGetActiveDisplayList call
         activeDisplays = (CGDirectDisplayID *) malloc(activeDisplayCount * sizeof(CGDirectDisplayID));
         if (activeDisplays == NULL) {
-            fprintf(stderr, "Error: could not allocate memory for display list\n");
+            NSLog(CFSTR("s"), "Error: could not allocate memory for display list");
             return 1;
         }
         rc = CGGetActiveDisplayList(activeDisplayCount, activeDisplays, &displayCount);
         if (rc != kCGErrorSuccess) {
-            fprintf(stderr, "Error: failed to get list of active displays");
+            NSLog(CFSTR("%s"), "Error: failed to get list of active displays");
             return 1;
         }
 
@@ -97,7 +113,7 @@ int main(int argc, const char *argv[]) {
                 printf("screenresolution version %s\nLicensed under GPLv2\n", VERSION);
                 keepgoing = 0;
             } else {
-                fprintf(stderr, "I'm sorry %s. I'm afraid I can't do that\n", getlogin());
+                NSLog(CFSTR("I'm sorry %s. I'm afraid I can't do that"), getlogin());
                 exitcode++;
                 keepgoing = 0;
             }
@@ -105,7 +121,7 @@ int main(int argc, const char *argv[]) {
         free(activeDisplays);
         activeDisplays = NULL;
     } else {
-        fprintf(stderr, "Why failed? Because usage.\n");
+        NSLog(CFSTR("%s"), "Incorrect command line");
         exitcode++;
     }
     return exitcode > 0;
@@ -139,7 +155,7 @@ unsigned int configureDisplay(CGDirectDisplayID display, struct config *config, 
     unsigned int returncode = 1;
     CFArrayRef allModes = CGDisplayCopyAllDisplayModes(display, NULL);
     if (allModes == NULL) {
-        fprintf(stderr, "Error: failed trying to look up modes for display %d", displayNum);
+        NSLog(CFSTR("Error: failed trying to look up modes for display %u"), displayNum);
     }
 
     CGDisplayModeRef newMode = NULL;
@@ -163,13 +179,11 @@ unsigned int configureDisplay(CGDirectDisplayID display, struct config *config, 
     }
     CFRelease(allModes);
     if (newMode != NULL) {
-        printf("Setting mode on display %d to %lux%lux%lu\n",
-                displayNum, pw, ph, pd);
+        NSLog(CFSTR("set mode on display %u to %ux%ux%u"), displayNum, pw, ph, pd);
         setDisplayToMode(display,newMode);
     } else {
-        fprintf(stderr,
-                "Error: requested mode (%lux%lux%lu) is not available\n",
-                config->w, config->h, config->d);
+        NSLog(CFSTR("Error: mode %ux%ux%u not available on display %u"), 
+                config->w, config->h, config->d, displayNum);
         returncode = 0;
     }
     return returncode;
@@ -180,17 +194,17 @@ unsigned int setDisplayToMode(CGDirectDisplayID display, CGDisplayModeRef mode) 
     CGDisplayConfigRef config;
     rc = CGBeginDisplayConfiguration(&config);
     if (rc != kCGErrorSuccess) {
-        fprintf(stderr, "Error: failed CGBeginDisplayConfiguration");
+        NSLog(CFSTR("Error: failed CGBeginDisplayConfiguration err(%u)"), rc);
         return 0;
     }
     rc = CGConfigureDisplayWithDisplayMode(config, display, mode, NULL);
     if (rc != kCGErrorSuccess) {
-        fprintf(stderr, "Error: failed CGConfigureDisplayWithDisplayMode");
+        NSLog(CFSTR("Error: failed CGConfigureDisplayWithDisplayMode err(%u)"), rc);
         return 0;
     }
     rc = CGCompleteDisplayConfiguration(config, kCGConfigureForSession);
     if (rc != kCGErrorSuccess) {
-        fprintf(stderr, "Error: failed CGCompleteDisplayConfiguration");
+        NSLog(CFSTR("Error: failed CGCompleteDisplayConfiguration err(%u)"), rc);        
         return 0;
     }
     return 1;
@@ -200,10 +214,10 @@ unsigned int listCurrentMode(CGDirectDisplayID display, int displayNum) {
     unsigned int returncode = 1;
     CGDisplayModeRef currentMode = CGDisplayCopyDisplayMode(display);
     if (currentMode == NULL) {
-        fprintf(stderr, "Error: unable to copy current display mode");
+        NSLog(CFSTR("%s"), "Error: unable to copy current display mode");
         returncode = 0;
     }
-    printf("Display %d: %lux%lux%lu\n",
+    NSLog(CFSTR("Display %d: %ux%ux%u"),
            displayNum,
            CGDisplayModeGetWidth(currentMode),
            CGDisplayModeGetHeight(currentMode),
@@ -239,7 +253,6 @@ unsigned int listAvailableModes(CGDirectDisplayID display, int displayNum) {
         }
     }
     CFRelease(allModes);
-    printf("\n");
     return returncode;
 }
 
@@ -251,7 +264,7 @@ unsigned int parseStringConfig(const char *string, struct config *out) {
     int numConverted = sscanf(string, "%lux%lux%lu", &w, &h, &d);
     if (numConverted != 3) {
         rc = 0;
-        fprintf(stderr, "Error: the mode '%s' couldn't be parsed", string);
+        NSLog(CFSTR("Error: the mode '%s' couldn't be parsed"), string);
     } else {
         out->w = w;
         out->h = h;

@@ -26,10 +26,10 @@ screenresolution: screenresolution32 screenresolution64
 		-create -output screenresolution
 
 screenresolution32: main.c version.h
-	$(CC) $(CPPFLAGS) $(CFLAGS) -framework ApplicationServices $< -m32 -o $@
+	$(CC) $(CPPFLAGS) $(CFLAGS) -framework Foundation -framework ApplicationServices $< -m32 -o $@
 
 screenresolution64: main.c version.h
-	$(CC) $(CPPFLAGS) $(CFLAGS) -framework ApplicationServices $< -m64 -o $@
+	$(CC) $(CPPFLAGS) $(CFLAGS) -framework Foundation -framework ApplicationServices $< -m64 -o $@
 
 version.h:
 	sed -e "s/@VERSION@/\"$(VERSION)\"/" < version-tmpl.h > version.h
