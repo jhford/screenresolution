@@ -220,11 +220,12 @@ unsigned int listCurrentMode(CGDirectDisplayID display, int displayNum) {
         NSLog(CFSTR("%s"), "Error: unable to copy current display mode");
         returncode = 0;
     }
-    NSLog(CFSTR("Display %d: %ux%ux%u"),
+    NSLog(CFSTR("Display %d: %ux%ux%u@%.0f"),
            displayNum,
            CGDisplayModeGetWidth(currentMode),
            CGDisplayModeGetHeight(currentMode),
-           bitDepth(currentMode));
+           bitDepth(currentMode),
+           CGDisplayModeGetRefreshRate(currentMode));
     CGDisplayModeRelease(currentMode);
     return returncode;
 }
