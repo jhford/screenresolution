@@ -22,7 +22,10 @@
 #include "version.h"
 
 // Number of modes to list per line.
-#define MODES_PER_LINE 4
+#define MODES_PER_LINE 3
+
+// I have written an alternate list routine that spits out WAY more info
+#define LIST_DEBUG 1
 
 struct config {
     size_t w;
@@ -233,12 +236,15 @@ unsigned int listAvailableModes(CGDirectDisplayID display, int displayNum) {
     if (allModes == NULL) {
         returncode = 0;
     }
+#ifndef LIST_DEBUG
     printf("Available Modes on Display %d\n", displayNum);
 
+#endif
     CGDisplayModeRef mode;
     for (i = 0; i < CFArrayGetCount(allModes) && returncode; i++) {
         mode = (CGDisplayModeRef) CFArrayGetValueAtIndex(allModes, i);
         // This formatting is functional but it ought to be done less poorly.
+#ifndef LIST_DEBUG
         if (i % MODES_PER_LINE == 0) {
             printf("  ");
         } else {
@@ -251,6 +257,36 @@ unsigned int listAvailableModes(CGDirectDisplayID display, int displayNum) {
         if (i % MODES_PER_LINE == MODES_PER_LINE - 1) {
             printf("\n");
         }
+#else
+        uint32_t ioflags = CGDisplayModeGetIOFlags(mode);
+        printf("display: %d %4lux%4lux%2lu r:%.2f usable:%u ioflags:%4x valid:%u safe:%u default:%u",
+                displayNum,
+                CGDisplayModeGetWidth(mode),
+                CGDisplayModeGetHeight(mode),
+                bitDepth(mode),
+                CGDisplayModeGetRefreshRate(mode),
+                CGDisplayModeIsUsableForDesktopGUI(mode),
+                ioflags,
+                ioflags & kDisplayModeValidFlag ?1:0,
+                ioflags & kDisplayModeSafeFlag ?1:0,
+                ioflags & kDisplayModeDefaultFlag ?1:0 );
+        printf(" safety:%u alwaysshow:%u nevershow:%u notresize:%u requirepan:%u int:%u simul:%u",
+                ioflags & kDisplayModeSafetyFlags ?1:0,
+                ioflags & kDisplayModeAlwaysShowFlag ?1:0,
+                ioflags & kDisplayModeNeverShowFlag ?1:0,
+                ioflags & kDisplayModeNotResizeFlag ?1:0,
+                ioflags & kDisplayModeRequiresPanFlag ?1:0,
+                ioflags & kDisplayModeInterlacedFlag ?1:0,
+                ioflags & kDisplayModeSimulscanFlag ?1:0 );
+        printf(" builtin:%u notpreset:%u stretched:%u notgfxqual:%u valagnstdisp:%u tv:%u vldmirror:%u\n",
+                ioflags & kDisplayModeBuiltInFlag ?1:0,
+                ioflags & kDisplayModeNotPresetFlag ?1:0,
+                ioflags & kDisplayModeStretchedFlag ?1:0,
+                ioflags & kDisplayModeNotGraphicsQualityFlag ?1:0,
+                ioflags & kDisplayModeValidateAgainstDisplay ?1:0,
+                ioflags & kDisplayModeTelevisionFlag ?1:0,
+                ioflags & kDisplayModeValidForMirroringFlag ?1:0 );
+#endif
     }
     CFRelease(allModes);
     return returncode;
