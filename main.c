@@ -25,7 +25,7 @@
 #define MODES_PER_LINE 3
 
 // I have written an alternate list routine that spits out WAY more info
-#define LIST_DEBUG 1
+// #define LIST_DEBUG 1
 
 struct config {
     size_t w;
@@ -250,10 +250,13 @@ unsigned int listAvailableModes(CGDirectDisplayID display, int displayNum) {
         } else {
             printf("\t");
         }
-        printf("%lux%lux%lu ",
+        char modestr [50];
+        sprintf(modestr, "%lux%lux%lu@%.0f",
                CGDisplayModeGetWidth(mode),
                CGDisplayModeGetHeight(mode),
-               bitDepth(mode));
+               bitDepth(mode),
+               CGDisplayModeGetRefreshRate(mode));
+        printf("%-20s ", modestr);
         if (i % MODES_PER_LINE == MODES_PER_LINE - 1) {
             printf("\n");
         }
