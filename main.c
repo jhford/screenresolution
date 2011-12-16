@@ -28,9 +28,10 @@
 // #define LIST_DEBUG 1
 
 struct config {
-    size_t w;
-    size_t h;
-    size_t d;
+    size_t w; // width
+    size_t h; // height
+    size_t d; // colour depth
+    double r; // refresh rate
 };
 
 unsigned int setDisplayToMode(CGDirectDisplayID display, CGDisplayModeRef mode);
@@ -166,6 +167,7 @@ unsigned int configureDisplay(CGDirectDisplayID display, struct config *config, 
     size_t pw; // possible width.
     size_t ph; // possible height.
     size_t pd; // possible depth.
+    double pr; // possible refresh rate
     int looking = 1; // used to decide whether to continue looking for modes.
     int i;
     for (i = 0 ; i < CFArrayGetCount(allModes) && looking; i++) {
@@ -173,20 +175,22 @@ unsigned int configureDisplay(CGDirectDisplayID display, struct config *config, 
         pw = CGDisplayModeGetWidth(possibleMode);
         ph = CGDisplayModeGetHeight(possibleMode);
         pd = bitDepth(possibleMode);
+        pr = CGDisplayModeGetRefreshRate(possibleMode);
         if (pw == config->w &&
             ph == config->h &&
-            pd == config->d) {
+            pd == config->d &&
+            pr == config->r) {
             looking = 0; // Stop looking for more modes!
             newMode = possibleMode;
         }
     }
     CFRelease(allModes);
     if (newMode != NULL) {
-        NSLog(CFSTR("set mode on display %u to %ux%ux%u"), displayNum, pw, ph, pd);
+        NSLog(CFSTR("set mode on display %u to %ux%ux%u@%.0f"), displayNum, pw, ph, pd, pr);
         setDisplayToMode(display,newMode);
     } else {
-        NSLog(CFSTR("Error: mode %ux%ux%u not available on display %u"), 
-                config->w, config->h, config->d, displayNum);
+        NSLog(CFSTR("Error: mode %ux%ux%u@%f not available on display %u"), 
+                config->w, config->h, config->d, config->r, displayNum);
         returncode = 0;
     }
     return returncode;
@@ -263,7 +267,7 @@ unsigned int listAvailableModes(CGDirectDisplayID display, int displayNum) {
         }
 #else
         uint32_t ioflags = CGDisplayModeGetIOFlags(mode);
-        printf("display: %d %4lux%4lux%2lu r:%.2f usable:%u ioflags:%4x valid:%u safe:%u default:%u",
+        printf("display: %d %4lux%4lux%2lu@%.0f usable:%u ioflags:%4x valid:%u safe:%u default:%u",
                 displayNum,
                 CGDisplayModeGetWidth(mode),
                 CGDisplayModeGetHeight(mode),
@@ -301,14 +305,16 @@ unsigned int parseStringConfig(const char *string, struct config *out) {
     size_t w;
     size_t h;
     size_t d;
-    int numConverted = sscanf(string, "%lux%lux%lu", &w, &h, &d);
-    if (numConverted != 3) {
+    double r;
+    int numConverted = sscanf(string, "%lux%lux%lu@%lf", &w, &h, &d, &r);
+    if (numConverted != 4) {
         rc = 0;
         NSLog(CFSTR("Error: the mode '%s' couldn't be parsed"), string);
     } else {
         out->w = w;
         out->h = h;
         out->d = d;
+        out->r = r;
         rc = 1;
     }
     return rc;
