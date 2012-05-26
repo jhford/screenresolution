@@ -113,11 +113,38 @@ int main(int argc, const char *argv[]) {
                         }
                     }
                 }
+            } else if (strcmp(argv[1], "-help") == 0) {
+                // Send help information to stdout since it was requested
+                printf("\n  screenresolution sets the screen resolution on Mac computers.\n\n");
+                printf("  screenresolution version %s\n", VERSION);
+                printf("  Licensed under GPLv2\n");
+                printf("  Copyright (C) 2011  John Ford <john@johnford.info>\n\n");
+                printf("  usage: screenresolution [get]    - Show the resolution of all active displays\n");
+                printf("         screenresolution [list]   - Show available resolutions of all active displays\n");
+                printf("         screenresolution [skip] [display1resolution] [display2resolution]\n");
+                printf("                                   - Sets display resolution and refresh rate\n");
+                printf("         screenresolution -version - Displays version information for screenresolution\n"); 
+                printf("         screenresolution -help    - Displays this help information\n\n"); 
+                printf("  examples: screenresolution 800x600x32            - Sets main display to 800x600x32\n");
+                printf("            screenresolution 800x600x32 800x600x32 - Sets both displays to 800x600x32\n");
+                printf("            screenresolution skip 800x600x32       - Sets second display to 800x600x32\n\n");
             } else if (strcmp(argv[1], "-version") == 0) {
                 printf("screenresolution version %s\nLicensed under GPLv2\n", VERSION);
                 keepgoing = 0;
             } else {
                 NSLog(CFSTR("I'm sorry %s. I'm afraid I can't do that"), getlogin());
+                // Send help information to stderr
+                NSLog(CFSTR("%s"), "    Error: unable to copy current display mode\n\n");
+                NSLog(CFSTR("    screenresolution version %s -- Licensed under GPLv2\n\n\n"), VERSION);
+                NSLog(CFSTR("%s"), "     usage: screenresolution [get]  - Show the resolution of all active displays");
+                NSLog(CFSTR("%s"), "            screenresolution [list] - Show available resolutions of all active displays");
+                NSLog(CFSTR("%s"), "            screenresolution [skip] [display1resolution] [display2resolution]");
+                NSLog(CFSTR("%s"), "                                    - Sets display resolution and refresh rate");
+                NSLog(CFSTR("%s"), "            screenresolution -version - Displays version information for screenresolution");
+                NSLog(CFSTR("%s"), "            screenresolution -help    - Displays this help information\n\n");
+                NSLog(CFSTR("%s"), "     examples: screenresolution 800x600x32            - Sets main display to 800x600x32");
+                NSLog(CFSTR("%s"), "               screenresolution 800x600x32 800x600x32 - Sets both displays to 800x600x32");
+                NSLog(CFSTR("%s"), "               screenresolution skip 800x600x32       - Sets second display to 800x600x32\n\n");
                 exitcode++;
                 keepgoing = 0;
             }
