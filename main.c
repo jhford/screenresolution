@@ -308,8 +308,18 @@ unsigned int parseStringConfig(const char *string, struct config *out) {
     double r;
     int numConverted = sscanf(string, "%lux%lux%lu@%lf", &w, &h, &d, &r);
     if (numConverted != 4) {
-        rc = 0;
-        NSLog(CFSTR("Error: the mode '%s' couldn't be parsed"), string);
+        numConverted = sscanf(string, "%lux%lux%lu", &w, &h, &d);
+        if (numConverted != 3) {
+            rc = 0;
+            NSLog(CFSTR("Error: the mode '%s' couldn't be parsed"), string);
+        } else {
+            out->w = w;
+            out->h = h;
+            out->d = d;
+            r=60.0;
+            rc = 1;
+            NSLog(CFSTR("Warning: no refresh rate specified, assuming %.0lfHz"), r);
+        }
     } else {
         out->w = w;
         out->h = h;
