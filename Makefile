@@ -17,7 +17,7 @@ VERSION=1.6dev
 
 CC=clang
 LIPO=lipo
-PACKAGE_MAKER= /Applications/PackageMaker.app/Contents/MacOS/PackageMaker
+PACKAGE_BUILD=/usr/bin/pkgbuild
 
 .PHONY: build
 build: screenresolution
@@ -87,10 +87,8 @@ pkg: screenresolution
 	mkdir -p pkgroot/$(PREFIX)/bin
 	install -s -m 0755 screenresolution \
 		pkgroot/$(PREFIX)/bin
-	$(PACKAGE_MAKER) --root pkgroot/  --id com.johnhford.screenresolution \
-		--out "screenresolution-$(VERSION).pkg" --target 10.5 \
-		--title "screenresolution $(VERSION)" \
-		--version $(VERSION)
+	$(PACKAGE_BUILD) --root pkgroot/  --identifier com.johnhford.screenresolution \
+		--version $(VERSION) "screenresolution-$(VERSION).pkg" 
 	rm -f screenresolution.pkg
 	ln -s screenresolution-$(VERSION).pkg screenresolution.pkg
 
