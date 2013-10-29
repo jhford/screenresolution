@@ -17,12 +17,13 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA.
  */
-//#ifndef __CG_UTILS__H
-//#define __CG_UTILS__H
+
+#ifndef __CG_UTILS__H
+#define __CG_UTILS__H
+
 #include <ApplicationServices/ApplicationServices.h>
 
 // http://stackoverflow.com/questions/3060121/core-foundation-equivalent-for-nslog/3062319#3062319
-
 #ifndef __OBJC__
 void NSLog(CFStringRef format, ...);
 void NSLogv(CFStringRef format, va_list args);
@@ -42,4 +43,4 @@ unsigned int configureDisplay(CGDirectDisplayID display,
 unsigned int parseStringConfig(const char *string, struct config *out);
 size_t bitDepth(CGDisplayModeRef mode);
 
-//#endif
+#endif

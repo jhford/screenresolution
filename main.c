@@ -18,7 +18,6 @@
  * 02110-1301, USA.
  */
 
-//#include <ApplicationServices/ApplicationServices.h>
 #include "version.h"
 #include "cg_utils.h"
  
