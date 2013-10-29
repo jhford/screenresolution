@@ -13,20 +13,19 @@ PREFIX=/usr/local
 ORIG_RES=1920x1200x32
 TEST_RES=800x600x32
 
-VERSION=1.6dev
+VERSION=1.6
 
 CC=clang
-LIPO=lipo
 PACKAGE_BUILD=/usr/bin/pkgbuild
 ARCH_FLAGS=-arch i386 -arch x86_64
 
 .PHONY: build
 build: screenresolution
 
-screenresolution: main.c cg_utils.o version.h 
-		$(CC) $(CPPFLAGS) $(CFLAGS) $(ARCH_FLAGS) -framework Foundation -framework ApplicationServices $< *.o -o $@
+screenresolution: main.o cg_utils.o
+		$(CC) $(CPPFLAGS) $(CFLAGS) $(ARCH_FLAGS) -framework Foundation -framework ApplicationServices $^ -o $@
 
-%.o: %.c
+%.o: %.c version.h
 	$(CC) $(CPPFLAGS) $(CFLAGS) $(ARCH_FLAGS) $< -c -o $@
 
 version.h:
