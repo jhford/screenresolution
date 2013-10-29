@@ -13,7 +13,7 @@ PREFIX=/usr/local
 ORIG_RES=1920x1200x32
 TEST_RES=800x600x32
 
-VERSION=1.6
+VERSION=1.7dev
 
 CC=clang
 PACKAGE_BUILD=/usr/bin/pkgbuild
