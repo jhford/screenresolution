@@ -18,31 +18,22 @@ VERSION=1.6dev
 CC=clang
 LIPO=lipo
 PACKAGE_BUILD=/usr/bin/pkgbuild
+ARCH_FLAGS=-arch i386 -arch x86_64
 
 .PHONY: build
 build: screenresolution
 
-screenresolution: screenresolution32 screenresolution64
-		$(LIPO) -arch i386 screenresolution32 -arch x86_64 screenresolution64 \
-			-create -output screenresolution
+screenresolution: main.c cg_utils.o version.h 
+		$(CC) $(CPPFLAGS) $(CFLAGS) $(ARCH_FLAGS) -framework Foundation -framework ApplicationServices $< *.o -o $@
 
-screenresolution32: main.c cg_utils32.o version.h
-		$(CC) $(CPPFLAGS) $(CFLAGS) -framework Foundation -framework ApplicationServices $< cg_utils32.o -m32 -o $@
-
-screenresolution64: main.c cg_utils64.o version.h
-		$(CC) $(CPPFLAGS) $(CFLAGS) -framework Foundation -framework ApplicationServices $< cg_utils64.o -m64 -o $@
-
-cg_utils32.o:
-		$(CC) $(CPPFLAGS) $(CFLAGS) cg_utils.c -m32  -c -o cg_utils32.o
-
-cg_utils64.o:
-		$(CC) $(CPPFLAGS) $(CFLAGS) cg_utils.c -m64 -c -o cg_utils64.o
+%.o: %.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(ARCH_FLAGS) $< -c -o $@
 
 version.h:
 	sed -e "s/@VERSION@/\"$(VERSION)\"/" < version-tmpl.h > version.h
 
 clean:
-	rm -f screenresolution screenresolution32 screenresolution64 cg_utils32.o cg_utils64.o \
+	rm -f screenresolution *.o \
 		screenresolution-$(VERSION).pkg screenresolution-$(VERSION).dmg \
 		version.h
 	rm -rf pkgroot dmgroot
