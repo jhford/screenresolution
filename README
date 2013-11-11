@@ -72,14 +72,14 @@ resolutions will be ignored.
 
 Example 1:
     This example works with one or more screens
-    $ screenresolution 800x600x32
+    $ screenresolution set 800x600x32
 Result 1:
     The main display will change to 800x600x32, second screen
     will not be changed
 
 Example 2:
     This example assumes two screens
-    $ screenresolution 800x600x32 800x600x32
+    $ screenresolution set 800x600x32 800x600x32
 Result 2:
     The first and second monitor on the system will be set to 
     800x600x32
