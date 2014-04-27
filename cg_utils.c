@@ -135,3 +135,38 @@ unsigned int parseStringConfig(const char *string, struct config *out) {
     }
     return rc;
 }
+
+CFComparisonResult _compareCFDisplayModes (CGDisplayModeRef *mode1Ptr, CGDisplayModeRef *mode2Ptr, void *context)
+{
+    CGDisplayModeRef mode1 = (CGDisplayModeRef)mode1Ptr;
+    CGDisplayModeRef mode2 = (CGDisplayModeRef)mode2Ptr;
+
+    size_t width1 = CGDisplayModeGetWidth(mode1);
+    size_t width2 = CGDisplayModeGetWidth(mode2);
+    
+    if(width1 == width2) {
+        size_t height1 = CGDisplayModeGetWidth(mode1);
+        size_t height2 = CGDisplayModeGetWidth(mode2);
+        
+        if(height1 == height2) {
+            size_t refreshRate1 = CGDisplayModeGetRefreshRate(mode1);
+            size_t refreshRate2 = CGDisplayModeGetRefreshRate(mode2);
+            
+            if(refreshRate1 == refreshRate2) {
+                long bitDepth1 = bitDepth(mode1);
+                long bitDepth2 = bitDepth(mode2);
+                
+                if(bitDepth1 == bitDepth2)
+                    return kCFCompareEqualTo;
+                else
+                    return (bitDepth1 < bitDepth2) ? kCFCompareLessThan : kCFCompareGreaterThan;
+            }
+            else 
+                return (refreshRate1 < refreshRate2) ? kCFCompareLessThan : kCFCompareGreaterThan;
+        }
+        else 
+            return (height1 < height2) ? kCFCompareLessThan : kCFCompareGreaterThan;
+    }
+    else 
+        return (width1 < width2) ? kCFCompareLessThan : kCFCompareGreaterThan;
+}

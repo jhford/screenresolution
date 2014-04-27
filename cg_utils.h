@@ -42,5 +42,6 @@ unsigned int configureDisplay(CGDirectDisplayID display,
                               int displayNum);
 unsigned int parseStringConfig(const char *string, struct config *out);
 size_t bitDepth(CGDisplayModeRef mode);
+CFComparisonResult _compareCFDisplayModes (CGDisplayModeRef *mode1Ptr, CGDisplayModeRef *mode2Ptr, void *context);
 
 #endif
