@@ -132,16 +132,20 @@ unsigned int listCurrentMode(CGDirectDisplayID display, int displayNum) {
 
 unsigned int listAvailableModes(CGDirectDisplayID display, int displayNum) {
     unsigned int returncode = 1;
+    int numModes = 0;
     int i;
+
     CFArrayRef allModes = CGDisplayCopyAllDisplayModes(display, NULL);
     if (allModes == NULL) {
         returncode = 0;
     }
 
+    numModes = CFArrayGetCount(allModes);
+
     // sort the array of display modes
     CFMutableArrayRef allModesSorted =  CFArrayCreateMutableCopy(
                                           kCFAllocatorDefault,
-                                          CFArrayGetCount(allModes),
+                                          numModes,
                                           allModes
                                         );
 
@@ -156,21 +160,22 @@ unsigned int listAvailableModes(CGDirectDisplayID display, int displayNum) {
     if(displayNum != 0)
         printf("\n\n");
     printf("Available Modes on Display %d\n", displayNum);
-
 #endif
+
     CGDisplayModeRef mode;
 
-    int modesPerColumn = ceil(CFArrayGetCount(allModesSorted) * 1.0 / MODES_PER_LINE);
+    int modesPerColumn = numModes / MODES_PER_LINE;
 
-    for (i = 0; i < CFArrayGetCount(allModesSorted) && returncode; i++) {
+    for (i = 0; (i < numModes) && returncode; i++) {
+        int rowNumber = (i / MODES_PER_LINE);
+        int idxDisplayMode = (i % MODES_PER_LINE) * modesPerColumn + rowNumber;
 
-        int rowNumber = ceil(i/MODES_PER_LINE);
-        int index = (i % (MODES_PER_LINE)) * modesPerColumn + rowNumber;
+        // if there are an even number of display modes to display,
+        // the last mode must have it's index decremented by 1
+        idxDisplayMode = MIN(idxDisplayMode, numModes - 1);
 
-        if(index > CFArrayGetCount(allModesSorted) - 1)
-            index -= 1;
+        mode = (CGDisplayModeRef) CFArrayGetValueAtIndex(allModesSorted, idxDisplayMode);
 
-        mode = (CGDisplayModeRef) CFArrayGetValueAtIndex(allModesSorted, index);
         // This formatting is functional but it ought to be done less poorly.
 #ifndef LIST_DEBUG
         if (i % MODES_PER_LINE == 0) {
