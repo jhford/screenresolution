@@ -61,7 +61,7 @@ int main(int argc, const char *argv[]) {
         // Allocate storage for the next CGGetActiveDisplayList call
         activeDisplays = (CGDirectDisplayID *) malloc(activeDisplayCount * sizeof(CGDirectDisplayID));
         if (activeDisplays == NULL) {
-            NSLog(CFSTR("s"), "Error: could not allocate memory for display list");
+            NSLog(CFSTR("%s"), "Error: could not allocate memory for display list");
             return 1;
         }
         rc = CGGetActiveDisplayList(activeDisplayCount, activeDisplays, &displayCount);
