@@ -25,7 +25,7 @@ properly for you if you only have one
 This will cause your screen to flicker as it changes the mode a
 couple times on each monitor.
 
-The makefiles support the DISTDIR (alternate root) and PREFIX 
+The makefiles support the DESTDIR (alternate root) and PREFIX 
 variables.  If you don't know what those are, you probably don't
 want them.
 
