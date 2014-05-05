@@ -132,18 +132,50 @@ unsigned int listCurrentMode(CGDirectDisplayID display, int displayNum) {
 
 unsigned int listAvailableModes(CGDirectDisplayID display, int displayNum) {
     unsigned int returncode = 1;
+    int numModes = 0;
     int i;
+
     CFArrayRef allModes = CGDisplayCopyAllDisplayModes(display, NULL);
     if (allModes == NULL) {
         returncode = 0;
     }
-#ifndef LIST_DEBUG
-    printf("Available Modes on Display %d\n", displayNum);
 
+    numModes = CFArrayGetCount(allModes);
+
+    // sort the array of display modes
+    CFMutableArrayRef allModesSorted =  CFArrayCreateMutableCopy(
+                                          kCFAllocatorDefault,
+                                          numModes,
+                                          allModes
+                                        );
+
+    CFArraySortValues(
+        allModesSorted,
+        CFRangeMake(0, CFArrayGetCount(allModesSorted)),
+        (CFComparatorFunction) _compareCFDisplayModes,
+        NULL
+    ); 
+
+#ifndef LIST_DEBUG
+    if(displayNum != 0)
+        printf("\n\n");
+    printf("Available Modes on Display %d\n", displayNum);
 #endif
+
     CGDisplayModeRef mode;
-    for (i = 0; i < CFArrayGetCount(allModes) && returncode; i++) {
-        mode = (CGDisplayModeRef) CFArrayGetValueAtIndex(allModes, i);
+
+    int modesPerColumn = numModes / MODES_PER_LINE;
+
+    for (i = 0; (i < numModes) && returncode; i++) {
+        int rowNumber = (i / MODES_PER_LINE);
+        int idxDisplayMode = (i % MODES_PER_LINE) * modesPerColumn + rowNumber;
+
+        // if there are an even number of display modes to display,
+        // the last mode must have it's index decremented by 1
+        idxDisplayMode = MIN(idxDisplayMode, numModes - 1);
+
+        mode = (CGDisplayModeRef) CFArrayGetValueAtIndex(allModesSorted, idxDisplayMode);
+
         // This formatting is functional but it ought to be done less poorly.
 #ifndef LIST_DEBUG
         if (i % MODES_PER_LINE == 0) {
@@ -151,16 +183,17 @@ unsigned int listAvailableModes(CGDirectDisplayID display, int displayNum) {
         } else {
             printf("\t");
         }
+
         char modestr [50];
-        sprintf(modestr, "%lux%lux%lu@%.0f",
+        sprintf(modestr, "%4lux%4lux%lu@%.0f",
                CGDisplayModeGetWidth(mode),
                CGDisplayModeGetHeight(mode),
                bitDepth(mode),
                CGDisplayModeGetRefreshRate(mode));
         printf("%-20s ", modestr);
-        if (i % MODES_PER_LINE == MODES_PER_LINE - 1) {
+
+        if(i % MODES_PER_LINE == MODES_PER_LINE - 1)
             printf("\n");
-        }
 #else
         uint32_t ioflags = CGDisplayModeGetIOFlags(mode);
         printf("display: %d %4lux%4lux%2lu@%.0f usable:%u ioflags:%4x valid:%u safe:%u default:%u",
@@ -192,6 +225,9 @@ unsigned int listAvailableModes(CGDirectDisplayID display, int displayNum) {
                 ioflags & kDisplayModeValidForMirroringFlag ?1:0 );
 #endif
     }
+
     CFRelease(allModes);
+    CFRelease(allModesSorted);
+
     return returncode;
 }
