@@ -135,6 +135,8 @@ unsigned int listAvailableModes(CGDirectDisplayID display, int displayNum) {
     int numModes = 0;
     int i;
 
+    char* displayName = getPreferredDisplayName(display);
+
     CFArrayRef allModes = CGDisplayCopyAllDisplayModes(display, NULL);
     if (allModes == NULL) {
         returncode = 0;
@@ -159,7 +161,7 @@ unsigned int listAvailableModes(CGDirectDisplayID display, int displayNum) {
 #ifndef LIST_DEBUG
     if(displayNum != 0)
         printf("\n\n");
-    printf("Available Modes on Display %d\n", displayNum);
+    printf("Available Modes on Display %d (%s)\n", displayNum, displayName);
 #endif
 
     CGDisplayModeRef mode;

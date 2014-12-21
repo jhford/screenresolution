@@ -170,3 +170,59 @@ CFComparisonResult _compareCFDisplayModes (CGDisplayModeRef *mode1Ptr, CGDisplay
     else 
         return (width1 < width2) ? kCFCompareLessThan : kCFCompareGreaterThan;
 }
+
+char* convertCFStringToCString(CFStringRef toConvert)
+{   
+    char* toReturn = "";
+
+    if (NULL != toConvert) 
+    {
+        CFIndex length = CFStringGetLength(toConvert);
+        CFIndex maxSize = CFStringGetMaximumSizeForEncoding(length, kCFStringEncodingUTF8);
+        char *buffer = (char *)malloc(maxSize);
+
+        if (CFStringGetCString(toConvert, buffer, maxSize, kCFStringEncodingUTF8)) 
+        {
+            toReturn = buffer;
+        }
+    }
+
+    return toReturn;
+}
+
+char* getPreferredDisplayName(CGDirectDisplayID displayID)
+{
+    char* name = "Unknown";
+
+    //TODO: 'CGDisplayIOServicePort' is deprecated (but still available) in OS X 10.9
+    // I believe something else will come out by the time it is fully deprecated...or
+    // Apple will document a way of getting this additional display info while using
+    // CoreGraphics.
+    io_service_t displayServicePort = CGDisplayIOServicePort(displayID);
+
+    if (displayServicePort)
+    {   
+        CFDictionaryRef displayInfoDict = IODisplayCreateInfoDictionary(displayServicePort, kIODisplayOnlyPreferredName); 
+
+        if(displayInfoDict)
+        {
+            // this array will be populated with the localized names for the display (i.e. names of the
+            // display in different languages)
+            CFDictionaryRef namesForDisplay = CFDictionaryGetValue(displayInfoDict, CFSTR(kDisplayProductName));        
+            CFStringRef value;
+
+            if (namesForDisplay)
+            {
+                // TODO: get this working with system's default locale...the rest of the program is in English
+                // for now, so it's not an utterly obtuse decision to stick with English.
+                name = convertCFStringToCString(CFDictionaryGetValue(namesForDisplay, CFSTR("en_US")));       
+            }     
+
+            CFRelease(displayInfoDict);
+        }
+
+        IOObjectRelease(displayServicePort);
+    }
+
+    return strdup(name);
+}

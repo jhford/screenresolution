@@ -24,7 +24,7 @@ ARCH_FLAGS=-arch i386 -arch x86_64
 build: screenresolution
 
 screenresolution: main.c cg_utils.o version.h 
-		$(CC) $(CPPFLAGS) $(CFLAGS) $(ARCH_FLAGS) -framework Foundation -framework ApplicationServices $< *.o -o $@
+		$(CC) $(CPPFLAGS) $(CFLAGS) $(ARCH_FLAGS) -framework Foundation -framework ApplicationServices -framework IOKit $< *.o -o $@
 
 %.o: %.c
 	$(CC) $(CPPFLAGS) $(CFLAGS) $(ARCH_FLAGS) $< -c -o $@

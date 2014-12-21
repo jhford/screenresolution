@@ -22,6 +22,12 @@
 #define __CG_UTILS__H
 
 #include <ApplicationServices/ApplicationServices.h>
+#include <IOKit/graphics/IOGraphicsLib.h>
+
+/*
+#include <CoreVideo/CVBase.h>
+#include <CoreVideo/CVDisplayLink.h>
+*/
 
 // http://stackoverflow.com/questions/3060121/core-foundation-equivalent-for-nslog/3062319#3062319
 #ifndef __OBJC__
@@ -43,5 +49,6 @@ unsigned int configureDisplay(CGDirectDisplayID display,
 unsigned int parseStringConfig(const char *string, struct config *out);
 size_t bitDepth(CGDisplayModeRef mode);
 CFComparisonResult _compareCFDisplayModes (CGDisplayModeRef *mode1Ptr, CGDisplayModeRef *mode2Ptr, void *context);
+char* getPreferredDisplayName(CGDirectDisplayID displayID);
 
 #endif
