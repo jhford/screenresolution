@@ -14,20 +14,25 @@ IDENTIFIER=net.alkalay.screenresolution
 ORIG_RES=1920x1200x32
 TEST_RES=800x600x32
 
-VERSION=2.0
+VERSION=2.2
 
 CC=clang
 PACKAGE_BUILD=/usr/bin/pkgbuild
 ARCH_FLAGS=-arch i386 -arch x86_64
 
 .PHONY: build
-build: screenresolution changeres.app
+build: screenresolution SwitchResolution.app
 
 screenresolution: main.o cg_utils.o
 	$(CC) $(CPPFLAGS) $(CFLAGS) $(ARCH_FLAGS) -framework Foundation -framework ApplicationServices $^ -o $@
 
-changeres.app: changeres.applescript
+%.icns: %.png
+	sips -s format icns $< --out $@
+
+SwitchResolution.app: SwitchResolution.applescript resolution.icns
 	osacompile -o $@ $<
+	mv resolution.icns $@/Contents/Resources/applet.icns
+	
 
 %.o: %.c version.h
 	$(CC) $(CPPFLAGS) $(CFLAGS) $(ARCH_FLAGS) $< -c -o $@
@@ -38,8 +43,9 @@ version.h:
 clean:
 	rm -f screenresolution *.o \
 		screenresolution-$(VERSION).pkg screenresolution-$(VERSION).dmg \
-		version.h
-	rm -rf changeres.app
+		version.h \
+		resolution.icns
+	rm -rf SwitchResolution.app
 	rm -rf pkgroot dmgroot
 
 reallyclean: clean
@@ -78,12 +84,12 @@ install: screenresolution
 	install -s -m 0755 screenresolution \
 		$(DESTDIR)/$(PREFIX)/bin/
 
-pkg: screenresolution changeres.app
+pkg: screenresolution SwitchResolution.app
 	mkdir -p pkgroot/$(PREFIX)/bin
 	mkdir -p pkgroot/Applications
 	install -s -m 0755 screenresolution \
 		pkgroot/$(PREFIX)/bin
-	mv changeres.app pkgroot/Applications/
+	mv SwitchResolution.app pkgroot/Applications/
 	$(PACKAGE_BUILD) --root pkgroot/  --identifier $(IDENTIFIER) \
 		--version $(VERSION) "screenresolution-$(VERSION).pkg" 
 	rm -f screenresolution.pkg
