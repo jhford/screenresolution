@@ -8,22 +8,26 @@
 #   -convert test target to a shell script
 #   -figure out of lipo is the best way to make a universal binary on cmdline
 
-PREFIX=/usr/local
+PREFIX=/usr
+IDENTIFIER=net.alkalay.screenresolution
 
 ORIG_RES=1920x1200x32
 TEST_RES=800x600x32
 
-VERSION=1.7dev
+VERSION=2.0
 
 CC=clang
 PACKAGE_BUILD=/usr/bin/pkgbuild
 ARCH_FLAGS=-arch i386 -arch x86_64
 
 .PHONY: build
-build: screenresolution
+build: screenresolution changeres.app
 
 screenresolution: main.o cg_utils.o
 	$(CC) $(CPPFLAGS) $(CFLAGS) $(ARCH_FLAGS) -framework Foundation -framework ApplicationServices $^ -o $@
+
+changeres.app: changeres.applescript
+	osacompile -o $@ $<
 
 %.o: %.c version.h
 	$(CC) $(CPPFLAGS) $(CFLAGS) $(ARCH_FLAGS) $< -c -o $@
@@ -35,6 +39,7 @@ clean:
 	rm -f screenresolution *.o \
 		screenresolution-$(VERSION).pkg screenresolution-$(VERSION).dmg \
 		version.h
+	rm -rf changeres.app
 	rm -rf pkgroot dmgroot
 
 reallyclean: clean
@@ -73,11 +78,13 @@ install: screenresolution
 	install -s -m 0755 screenresolution \
 		$(DESTDIR)/$(PREFIX)/bin/
 
-pkg: screenresolution
+pkg: screenresolution changeres.app
 	mkdir -p pkgroot/$(PREFIX)/bin
+	mkdir -p pkgroot/Applications
 	install -s -m 0755 screenresolution \
 		pkgroot/$(PREFIX)/bin
-	$(PACKAGE_BUILD) --root pkgroot/  --identifier com.johnhford.screenresolution \
+	mv changeres.app pkgroot/Applications/
+	$(PACKAGE_BUILD) --root pkgroot/  --identifier $(IDENTIFIER) \
 		--version $(VERSION) "screenresolution-$(VERSION).pkg" 
 	rm -f screenresolution.pkg
 	ln -s screenresolution-$(VERSION).pkg screenresolution.pkg
