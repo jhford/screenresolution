@@ -1,19 +1,26 @@
-This is a tool that can be used to determine current resolution,
-list available resolutions and set resolutions for active displays
-on Mac OS 10.6, and possibly above.  I have only tested 10.6.
+This is a set of tools (GUI and command line) that can exploit Retina's highest and
+unsupported resolutions. As an example, a Retina MacBook Pro 13" can be set to
+2560x1600 maximum resolution, as opposed to Apple's max supported 1650x1050.
 
-I used clang for development, but the code seems to compile
-just fine with gcc.  The code might not be as well layed out
-as it could be, feel free to send a pull request.
+The SwitchResolution GUI app will show you the 3 highest resolutions to chose. While
+the screenresolution command lets you list available resolutions get current and set a
+new one. They were all tested on Yosemite.
+
+The screenresolution command was developed in C, while the SwitchResolution app is a
+very simple AppleScript compiled into an app.
 
 Build+Install
 ====================
-Running the following commands in Terminal.app will result in 
+Running the following commands will result in
 dmg with a pkg file being created if the system has Xcode 4.
     
     git clone github.com:jhford/screenresolution
     cd screenresolution
     make dmg
+    
+or, change the last command to a more economical
+
+	make pkg
 
 At this point, I'd recommend testing that things work!  I have
 written a 'test' makefile target.  Because this script expects two
@@ -36,12 +43,12 @@ you can run
     
     open screenresolution.pkg
 
-If you want to put this program on another system, you can choose
-between the pkg file, the dmg file, the binaries or use the 
-install make target with DESTDIR to specify an alternate root.
+Or simply double click on the PKG file to install it on your system.
 
-Running
-====================
+
+
+Running the command line tool
+=============================
 There are three commands that this program supports: get, list 
 and set.  All three modes operate on active displays [1].
 
