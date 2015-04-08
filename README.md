@@ -54,21 +54,22 @@ specify more resolutions than you have active screens, the extra
 resolutions will be ignored.
 
 This example works with one or more screens
+
     $ screenresolution set 800x600x32
-Result 1:
-    The main display will change to 800x600x32, second screen
-    will not be changed
+
+Result: the main display will change to 800x600x32, second screen will not be changed
 
 This example assumes two screens
+
     $ screenresolution set 800x600x32 800x600x32
-Result 2:
-    The first and second monitor on the system will be set to 
-    800x600x32
+
+Result: The first and second monitor on the system will be set to 800x600x32
 
 This example assumes two screens
+
     $ screen resolution set skip 800x600x32
-This will not touch the first screen but will set the second
-    screen to 800x600x32
+
+This will not touch the first screen but will set the second screen to 800x600x32
 
 Build+Install
 ====================
