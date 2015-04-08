@@ -7,7 +7,7 @@
 set ScreenResolutionCommand to "/usr/bin/screenresolution"
 
 set AppleScript's text item delimiters to "|"
-set res to text items of (do shell script ScreenResolutionCommand & " list 2>/dev/null | grep x | sed -e 's/x /x/g' | xargs echo | tr ' ' '\n' | sort -rn | head -3 | perl -e '$i=0; while (<>) {$i++; chop; m^(.*)x(.*)x(.*)^; print \"|\" if ($i>1); print \"$1×$2^$_\"};'")
+set res to text items of (do shell script ScreenResolutionCommand & " list 2>/dev/null | grep x | sed -e 's/x /x/g' | xargs echo | tr ' ' '\n' | sort -run | head -3 | perl -e '$i=0; while (<>) {$i++; chop; m^(.*)x(.*)x(.*)^; print \"|\" if ($i>1); print \"$1×$2^$_\"};'")
 
 set AppleScript's text item delimiters to "^"
 set resolutions to {}

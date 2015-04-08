@@ -1,6 +1,8 @@
-This is a set of tools (GUI and command line) that can exploit Retina's highest and
-unsupported resolutions. As an example, a Retina MacBook Pro 13" can be set to
-2560x1600 maximum resolution, as opposed to Apple's max supported 1650x1050.
+This is a set of tools (GUI and command line) that let you use MacBook Pro Retina's
+highest and unsupported resolutions. As an example, a Retina MacBook Pro 13" can be set
+to 2560×1600 maximum resolution, as opposed to Apple's max supported 1650×1050.
+
+![chose resolution](https://cloud.githubusercontent.com/assets/3484242/7044411/8c3d8532-ddc9-11e4-85fc-5301aee68b40.png)
 
 The SwitchResolution GUI app will show you the 3 highest resolutions to chose. While
 the screenresolution command lets you list available resolutions get current and set a
@@ -9,43 +11,17 @@ new one. They were all tested on Yosemite.
 The screenresolution command was developed in C, while the SwitchResolution app is a
 very simple AppleScript compiled into an app.
 
-Build+Install
-====================
-Running the following commands will result in
-dmg with a pkg file being created if the system has Xcode 4.
-    
-    git clone github.com:jhford/screenresolution
-    cd screenresolution
-    make dmg
-    
-or, change the last command to a more economical
+MacBook Pro Retina machines always use the maximum hardware resolution. The screen
+resolution manipulated by this tools is what is actually presented to apps. This way text,
+widgets, menus and screen real estate are increased an decreased for optimal use.  
 
-	make pkg
+Fast change resolution with SwitchResolution
+============================================
 
-At this point, I'd recommend testing that things work!  I have
-written a 'test' makefile target.  Because this script expects two
-monitors that both use the same resolution, it mightn't work 
-properly for you if you only have one
-
-    make test ORIG_RES=1920x1200x32
-
-This will cause your screen to flicker as it changes the mode a
-couple times on each monitor.
-
-The makefiles support the DESTDIR (alternate root) and PREFIX 
-variables.  If you don't know what those are, you probably don't
-want them.
-
-This will create a DMG file and a PKG file.  If you know or care 
-about the differences, you probably know what to do at this point.
-If you want to install this program on the system you built it on,
-you can run 
-    
-    open screenresolution.pkg
-
-Or simply double click on the PKG file to install it on your system.
-
-
+The SwitchResolution app purpose is to give fast one-click access to highest resolutions.
+Best way to use it is to fix it on your dock because you will find that different
+resolutions fit better for different kinds of work. You will prefer highest resolutions
+when working with many windows and lower resolutions when simply reading text.
 
 Running the command line tool
 =============================
@@ -77,26 +53,58 @@ This keyword will cause the first display to be skipped.  If you
 specify more resolutions than you have active screens, the extra
 resolutions will be ignored.
 
-Example 1:
-    This example works with one or more screens
+This example works with one or more screens
     $ screenresolution set 800x600x32
 Result 1:
     The main display will change to 800x600x32, second screen
     will not be changed
 
-Example 2:
-    This example assumes two screens
+This example assumes two screens
     $ screenresolution set 800x600x32 800x600x32
 Result 2:
     The first and second monitor on the system will be set to 
     800x600x32
 
-Example 3:
-    This example assumes two screens
+This example assumes two screens
     $ screen resolution set skip 800x600x32
-    This will not touch the first screen but will set the second
+This will not touch the first screen but will set the second
     screen to 800x600x32
 
+Build+Install
+====================
+Running the following commands will result in
+dmg with a pkg file being created if the system has Xcode 4.
+    
+    git clone github.com:avibrazil/screenresolution
+    cd screenresolution
+    make dmg
+    
+or, change the last command to a more economical
+
+	make pkg
+
+At this point, I'd recommend testing that things work!  I have
+written a 'test' makefile target.  Because this script expects two
+monitors that both use the same resolution, it mightn't work 
+properly for you if you only have one
+
+    make test ORIG_RES=1920x1200x32
+
+This will cause your screen to flicker as it changes the mode a
+couple times on each monitor.
+
+The makefiles support the DESTDIR (alternate root) and PREFIX 
+variables.  If you don't know what those are, you probably don't
+want them.
+
+This will create a DMG file and a PKG file.  If you know or care 
+about the differences, you probably know what to do at this point.
+If you want to install this program on the system you built it on,
+you can run 
+    
+    open screenresolution.pkg
+
+Or simply double click on the PKG file to install it on your system.
 
 [1]See discussion point for explanation of what active display means.
 http://developer.apple.com/library/mac/documentation/GraphicsImaging/Reference/Quartz_Services_Ref/Reference/reference.html#//apple_ref/c/func/CGGetActiveDisplayList
