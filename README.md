@@ -1,3 +1,8 @@
+# This software is now obsolete
+
+It doesn't know how to handle HiDPI resolutions and the GUI is limited.
+[RDM](https://github.com/avibrazil/RDM) is a better and more advanced solutions.
+
 This is a set of tools (GUI and command line) that let you use MacBook Pro Retina's
 highest and unsupported resolutions. As an example, a Retina MacBook Pro 13" can be set
 to 2560×1600 maximum resolution, as opposed to Apple's max supported 1650×1050.
