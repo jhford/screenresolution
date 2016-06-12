@@ -46,10 +46,19 @@ size_t bitDepth(CGDisplayModeRef mode) {
 
 unsigned int configureDisplay(CGDirectDisplayID display, struct config *config, int displayNum) {
     unsigned int returncode = 1;
-    CFArrayRef allModes = CGDisplayCopyAllDisplayModes(display, NULL);
+
+    int value = 1;
+    CFNumberRef number = CFNumberCreate( kCFAllocatorDefault, kCFNumberIntType, &value );
+    CFStringRef key = kCGDisplayShowDuplicateLowResolutionModes;
+    CFDictionaryRef options = CFDictionaryCreate( kCFAllocatorDefault, (const void **)&key, (const void **)&number, 1, NULL, NULL );
+
+    CFArrayRef allModes = CGDisplayCopyAllDisplayModes(display, options);
     if (allModes == NULL) {
         NSLog(CFSTR("Error: failed trying to look up modes for display %u"), displayNum);
     }
+    CFRelease(number);
+    CFRelease(options);
+
 
     CGDisplayModeRef newMode = NULL;
     CGDisplayModeRef possibleMode;
