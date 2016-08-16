@@ -225,7 +225,10 @@ unsigned int listAvailableModes(CGDirectDisplayID display, int displayNum) {
                 ioflags & kDisplayModeValidForMirroringFlag ?1:0 );
 #endif
     }
-    printf("\n");
+
+    if (numModes % MODES_PER_LINE)
+        printf("\n");
+
     CFRelease(allModes);
     CFRelease(allModesSorted);
 
