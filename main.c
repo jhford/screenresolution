@@ -20,7 +20,7 @@
 
 #include "version.h"
 #include "cg_utils.h"
- 
+
 // Number of modes to list per line.
 #define MODES_PER_LINE 3
 
@@ -154,7 +154,7 @@ unsigned int listAvailableModes(CGDirectDisplayID display, int displayNum) {
         CFRangeMake(0, CFArrayGetCount(allModesSorted)),
         (CFComparatorFunction) _compareCFDisplayModes,
         NULL
-    ); 
+    );
 
 #ifndef LIST_DEBUG
     if(displayNum != 0)
@@ -225,7 +225,7 @@ unsigned int listAvailableModes(CGDirectDisplayID display, int displayNum) {
                 ioflags & kDisplayModeValidForMirroringFlag ?1:0 );
 #endif
     }
-
+    printf("\n");
     CFRelease(allModes);
     CFRelease(allModesSorted);
 
