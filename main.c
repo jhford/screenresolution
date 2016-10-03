@@ -20,6 +20,7 @@
 
 #include "version.h"
 #include "cg_utils.h"
+#include <sys/param.h>
  
 // Number of modes to list per line.
 #define MODES_PER_LINE 3
