@@ -165,11 +165,13 @@ unsigned int listAvailableModes(CGDirectDisplayID display, int displayNum) {
 
     CGDisplayModeRef mode;
 
-    int modesPerColumn = numModes / MODES_PER_LINE;
+    int lastRowNum = (numModes - 1) / MODES_PER_LINE;
+    int lastRowColumnSize = numModes % MODES_PER_LINE;
 
     for (i = 0; (i < numModes) && returncode; i++) {
-        int rowNumber = (i / MODES_PER_LINE);
-        int idxDisplayMode = (i % MODES_PER_LINE) * modesPerColumn + rowNumber;
+        int rowNumber = i / MODES_PER_LINE;
+        int columnNumber = i % MODES_PER_LINE;
+        int idxDisplayMode = columnNumber * lastRowNum + MIN(lastRowColumnSize, columnNumber) + rowNumber;
 
         // if there are an even number of display modes to display,
         // the last mode must have it's index decremented by 1
