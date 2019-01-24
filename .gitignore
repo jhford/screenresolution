@@ -1,0 +1,11 @@
+cg_utils.o
+dmgroot/
+pkgroot/
+screenresolution
+screenresolution-1.7dev.dmg
+screenresolution-1.7dev.pkg
+screenresolution.dmg
+screenresolution.pkg
+version-tmpl.h
+version.h
+*.swp
