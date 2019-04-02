@@ -72,11 +72,19 @@ install: screenresolution
 	mkdir -p $(DESTDIR)/$(PREFIX)/bin
 	install -s -m 0755 screenresolution \
 		$(DESTDIR)/$(PREFIX)/bin/
+	mkdir -p \
+		$(DESTDIR)/$(PREFIX)/share/man/man1/
+	install -m 0644 screenresolution.1 \
+		$(DESTDIR)/$(PREFIX)/share/man/man1/
 
 pkg: screenresolution
 	mkdir -p pkgroot/$(PREFIX)/bin
 	install -s -m 0755 screenresolution \
 		pkgroot/$(PREFIX)/bin
+	mkdir -p \
+		pkgroot/$(PREFIX)/share/man/man1
+	install -m 0644 screenresolution.1 \
+		pkgroot/$(PREFIX)/share/man/man1
 	$(PACKAGE_BUILD) --root pkgroot/  --identifier com.johnhford.screenresolution \
 		--version $(VERSION) "screenresolution-$(VERSION).pkg" 
 	rm -f screenresolution.pkg
