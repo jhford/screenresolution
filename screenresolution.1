@@ -1,0 +1,74 @@
+.\" vi:set wm=5
+.TH SCREENRESOLUTION 1 "Apr 2019"
+.if n .ds Q \&"
+.if n .ds U \&"
+.if t .ds Q ``
+.if t .ds U ''
+.UC 4
+.SH NAME
+screenresolution \- screen resolution manager
+
+
+.SH SYNOPSIS
+.B screenresolution
+.B \fIlist | get | set\fP
+[
+.B \fIargs\fP
+]
+.br
+.B screenresolution list
+.br
+.B screenresolution get
+.br
+.B screenresolution set
+\fIresolution
+.ta .5i 1.8i
+
+.SH DESCRIPTION
+.I Screenresolution
+is a screen resolution manager that sets the current graphics resolution. There are three commands that this program supports: get, list and set. All three modes operate on active displays.
+
+.SH "COMMAND-LINE OPTIONS"
+Screenresolution has the following command-line options:
+.TP 5
+.B get
+The get mode will show you the resolution of all active displays
+
+    $ screenresolution get
+    Display 0: 1920x1200x32
+    Display 1: 1920x1200x32
+.TP 5
+.B set
+The set command takes a list of modes. It will apply the modes in the list of modes to the list of displays, starting with 0. Modes in excess of the number of active displays will be ignored. If you wish to set a monitor but not the lower numbered displays, there is a keyword 'skip' which can be subsituted for a resolution. This keyword will cause the first display to be skipped. If you specify more resolutions than you have active screens, the extra
+resolutions will be ignored.
+.TP 5
+.B list
+The list mode will show you to the available resolutions of all active displays, seperated by various whitespace.
+
+    Available Modes on Display 0
+      1920x1200x8   1920x1200x16    1920x1200x32    960x600x8 
+      960x600x16    960x600x32      1680x1050x8         1680x1050x16 
+    <snip>
+    Available Modes on Display 1
+    <snip>
+
+.SH EXAMPLES
+Example 1:
+    This example works with one or more screens
+    $ screenresolution set 800x600x32
+Result 1:
+    The main display will change to 800x600x32, second screen
+    will not be changed
+
+Example 2:
+    This example assumes two screens
+    $ screenresolution set 800x600x32 800x600x32
+Result 2:
+    The first and second monitor on the system will be set to 
+    800x600x32
+
+Example 3:
+    This example assumes two screens
+    $ screen resolution set skip 800x600x32
+    This will not touch the first screen but will set the second
+    screen to 800x600x32
