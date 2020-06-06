@@ -30,6 +30,7 @@
 
 unsigned int listAvailableModes(CGDirectDisplayID display, int displayNum);
 unsigned int listCurrentMode(CGDirectDisplayID display, int displayNum);
+unsigned int listMaxSupported(CGDirectDisplayID display, int displayNum);
 
 int main(int argc, const char *argv[]) {
     // http://developer.apple.com/library/IOs/#documentation/CoreFoundation/Conceptual/CFStrings/Articles/MutableStrings.html
@@ -75,6 +76,10 @@ int main(int argc, const char *argv[]) {
         for (d = 0; d < displayCount && keepgoing; d++) {
             if (strcmp(argv[1], "get") == 0) {
                 if (!listCurrentMode(activeDisplays[d], d)) {
+                    exitcode++;
+                }
+            } else if (strcmp(argv[1], "getMax") == 0) {
+                if (!listMaxSupported(activeDisplays[d], d)) {
                     exitcode++;
                 }
             } else if (strcmp(argv[1], "list") == 0) {
@@ -128,6 +133,42 @@ unsigned int listCurrentMode(CGDirectDisplayID display, int displayNum) {
            bitDepth(currentMode),
            CGDisplayModeGetRefreshRate(currentMode));
     CGDisplayModeRelease(currentMode);
+    return returncode;
+}
+
+unsigned int listMaxSupported(CGDirectDisplayID display, int displayNum) {
+    unsigned int returncode = 1;
+    CGDisplayModeRef maxSupportedMode = CGDisplayCopyDisplayMode(display);
+
+    CFStringRef keys[1] = { kCGDisplayShowDuplicateLowResolutionModes };
+    CFBooleanRef values[1] = { kCFBooleanTrue };
+    CFDictionaryRef options = CFDictionaryCreate(
+        kCFAllocatorDefault, (const void**) keys, (const void**) values, 1,
+        &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
+    CFArrayRef allModes = CGDisplayCopyAllDisplayModes(display, options);
+    if (allModes == NULL) {
+        NSLog(CFSTR("Error: failed trying to look up modes for display %u"), displayNum);
+    }
+
+    CFIndex displayModeCount = CFArrayGetCount(allModes);
+    for (int i = 0; i < displayModeCount; ++i) {
+        CGDisplayModeRef mode = (CGDisplayModeRef)CFArrayGetValueAtIndex(allModes, i);
+        CFComparisonResult result = _compareCFDisplayModes(mode, maxSupportedMode, NULL);
+        if (result == kCFCompareGreaterThan) {
+            maxSupportedMode = CGDisplayModeRetain(mode);
+        }
+    }
+
+    NSLog(CFSTR("Display %d: %ux%ux%u@%.0f"),
+           displayNum,
+           CGDisplayModeGetWidth(maxSupportedMode),
+           CGDisplayModeGetHeight(maxSupportedMode),
+           bitDepth(maxSupportedMode),
+           CGDisplayModeGetRefreshRate(maxSupportedMode));
+
+    CFRelease(allModes);
+    CFRelease(options);
+    CGDisplayModeRelease(maxSupportedMode);
     return returncode;
 }
 
