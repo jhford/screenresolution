@@ -86,7 +86,7 @@ Result 2:
 
 Example 3:
     This example assumes two screens
-    $ screen resolution set skip 800x600x32
+    $ screenresolution set skip 800x600x32
     This will not touch the first screen but will set the second
     screen to 800x600x32
 
