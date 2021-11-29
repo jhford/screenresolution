@@ -25,7 +25,7 @@ properly for you if you only have one
 This will cause your screen to flicker as it changes the mode a
 couple times on each monitor.
 
-The makefiles support the DISTDIR (alternate root) and PREFIX 
+The makefiles support the DESTDIR (alternate root) and PREFIX 
 variables.  If you don't know what those are, you probably don't
 want them.
 
@@ -72,21 +72,21 @@ resolutions will be ignored.
 
 Example 1:
     This example works with one or more screens
-    $ screenresolution 800x600x32
+    $ screenresolution set 800x600x32
 Result 1:
     The main display will change to 800x600x32, second screen
     will not be changed
 
 Example 2:
     This example assumes two screens
-    $ screenresolution 800x600x32 800x600x32
+    $ screenresolution set 800x600x32 800x600x32
 Result 2:
     The first and second monitor on the system will be set to 
     800x600x32
 
 Example 3:
     This example assumes two screens
-    $ screen resolution skip 800x600x32
+    $ screen resolution set skip 800x600x32
     This will not touch the first screen but will set the second
     screen to 800x600x32
 

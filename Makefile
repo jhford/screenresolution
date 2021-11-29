@@ -13,29 +13,26 @@ PREFIX=/usr/local
 ORIG_RES=1920x1200x32
 TEST_RES=800x600x32
 
-VERSION=1.6dev
+VERSION=1.7dev
 
 CC=clang
-LIPO=lipo
-PACKAGE_MAKER=/Developer/usr/bin/packagemaker
+PACKAGE_BUILD=/usr/bin/pkgbuild
+ARCH_FLAGS=-arch i386 -arch x86_64
 
+.PHONY: build
 build: screenresolution
 
-screenresolution: screenresolution32 screenresolution64
-	$(LIPO) -arch i386 screenresolution32 -arch x86_64 screenresolution64 \
-		-create -output screenresolution
+screenresolution: main.o cg_utils.o
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(ARCH_FLAGS) -framework Foundation -framework ApplicationServices $^ -o $@
 
-screenresolution32: main.c version.h
-	$(CC) $(CPPFLAGS) $(CFLAGS) -framework Foundation -framework ApplicationServices $< -m32 -o $@
-
-screenresolution64: main.c version.h
-	$(CC) $(CPPFLAGS) $(CFLAGS) -framework Foundation -framework ApplicationServices $< -m64 -o $@
+%.o: %.c version.h
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(ARCH_FLAGS) $< -c -o $@
 
 version.h:
 	sed -e "s/@VERSION@/\"$(VERSION)\"/" < version-tmpl.h > version.h
 
 clean:
-	rm -f screenresolution screenresolution32 screenresolution64 \
+	rm -f screenresolution *.o \
 		screenresolution-$(VERSION).pkg screenresolution-$(VERSION).dmg \
 		version.h
 	rm -rf pkgroot dmgroot
@@ -80,10 +77,8 @@ pkg: screenresolution
 	mkdir -p pkgroot/$(PREFIX)/bin
 	install -s -m 0755 screenresolution \
 		pkgroot/$(PREFIX)/bin
-	$(PACKAGE_MAKER) --root pkgroot/  --id com.johnhford.screenresolution \
-		--out "screenresolution-$(VERSION).pkg" --target 10.5 \
-		--title "screenresolution $(VERSION)" \
-		--version $(VERSION)
+	$(PACKAGE_BUILD) --root pkgroot/  --identifier com.johnhford.screenresolution \
+		--version $(VERSION) "screenresolution-$(VERSION).pkg" 
 	rm -f screenresolution.pkg
 	ln -s screenresolution-$(VERSION).pkg screenresolution.pkg
 
