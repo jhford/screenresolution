@@ -71,6 +71,56 @@ int main(int argc, const char *argv[]) {
             return 1;
         }
 
+        if (strcmp(argv[1], "help") == 0 || strcmp(argv[1], "-?") == 0) {
+	    printf("There are three commands that this program supports: get, list and set.\n\
+All three modes operate on active displays.\n\
+\n\
+The get mode will show you the resolution of all active displays\n\
+\n\
+    $ screenresolution get\n\
+    Display 0: 1920x1200x32\n\
+    Display 1: 1920x1200x32\n\
+\n\
+The list mode will show you to the available resolutions of all active\n\
+displays, seperated by various whitespace.\n\
+\n\
+    Available Modes on Display 0\n\
+      1920x1200x8   1920x1200x16    1920x1200x32    960x600x8\n\
+      960x600x16    960x600x32      1680x1050x8     1680x1050x16\n\
+    <snip>\n\
+    Available Modes on Display 1\n\
+    <snip>\n\
+\n\
+The set command takes a list of modes.  It will apply the modes\n\
+in the list of modes to the list of displays, starting with 0.\n\
+Modes in excess of the number of active displays will be ignored.\n\
+If you wish to set a monitor but not the lower numbered displays,\n\
+there is a keyword 'skip' which can be subsituted for a resolution.\n\
+This keyword will cause the first display to be skipped.  If you\n\
+specify more resolutions than you have active screens, the extra\n\
+resolutions will be ignored.\n\
+\n\
+Example 1:\n\
+    This example works with one or more screens\n\
+    $ screenresolution set 800x600x32\n\
+Result 1:\n\
+    The main display will change to 800x600x32, second screen\n\
+    will not be changed\n\
+\n\
+Example 2:\n\
+    This example assumes two screens\n\
+    $ screenresolution set 800x600x32 800x600x32\n\
+Result 2:\n\
+    The first and second monitor on the system will be set to\n\
+    800x600x32\n\
+\n\
+Example 3:\n\
+    This example assumes two screens\n\
+    $ screen resolution set skip 800x600x32\n\
+    This will not touch the first screen but will set the second\n\
+    screen to 800x600x32\n");
+	    return(0);
+	}
         // This loop should probably be in another function.
         for (d = 0; d < displayCount && keepgoing; d++) {
             if (strcmp(argv[1], "get") == 0) {
@@ -108,7 +158,7 @@ int main(int argc, const char *argv[]) {
         free(activeDisplays);
         activeDisplays = NULL;
     } else {
-        NSLog(CFSTR("%s"), "Incorrect command line");
+        NSLog(CFSTR("%s"), "Incorrect command line.\nUsage: screenresolution help|list|get|set <new resolution>");
         exitcode++;
     }
     return exitcode > 0;
