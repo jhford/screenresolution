@@ -8,6 +8,8 @@
 #   -convert test target to a shell script
 #   -figure out of lipo is the best way to make a universal binary on cmdline
 
+uname_m := $(shell uname -m)
+
 PREFIX=/usr/local
 
 ORIG_RES=1920x1200x32
@@ -17,7 +19,7 @@ VERSION=1.7dev
 
 CC=clang
 PACKAGE_BUILD=/usr/bin/pkgbuild
-ARCH_FLAGS=-arch i386 -arch x86_64
+ARCH_FLAGS=-arch $(uname_m)
 
 .PHONY: build
 build: screenresolution

@@ -20,8 +20,6 @@
 
 #include "version.h"
 #include "cg_utils.h"
-#include <sys/param.h>
- 
 // Number of modes to list per line.
 #define MODES_PER_LINE 3
 
@@ -30,6 +28,7 @@
 
 unsigned int listAvailableModes(CGDirectDisplayID display, int displayNum);
 unsigned int listCurrentMode(CGDirectDisplayID display, int displayNum);
+unsigned int listMaxSupported(CGDirectDisplayID display, int displayNum);
 
 int main(int argc, const char *argv[]) {
     // http://developer.apple.com/library/IOs/#documentation/CoreFoundation/Conceptual/CFStrings/Articles/MutableStrings.html
@@ -71,10 +70,20 @@ int main(int argc, const char *argv[]) {
             return 1;
         }
 
+        if (strcmp(argv[1], "help") == 0) {
+	    printf("Usage: Run screenreader with one of the following: get, getMax, list, or set [resolution].\n");
+        return(0);
+        }
+
+
         // This loop should probably be in another function.
         for (d = 0; d < displayCount && keepgoing; d++) {
             if (strcmp(argv[1], "get") == 0) {
                 if (!listCurrentMode(activeDisplays[d], d)) {
+                    exitcode++;
+                }
+            } else if (strcmp(argv[1], "getMax") == 0) {
+                if (!listMaxSupported(activeDisplays[d], d)) {
                     exitcode++;
                 }
             } else if (strcmp(argv[1], "list") == 0) {
@@ -108,7 +117,7 @@ int main(int argc, const char *argv[]) {
         free(activeDisplays);
         activeDisplays = NULL;
     } else {
-        NSLog(CFSTR("%s"), "Incorrect command line");
+        NSLog(CFSTR("%s"), "Invalid command. Run screenreader with get, getMax, list, or set [resolution].");
         exitcode++;
     }
     return exitcode > 0;
@@ -128,6 +137,42 @@ unsigned int listCurrentMode(CGDirectDisplayID display, int displayNum) {
            bitDepth(currentMode),
            CGDisplayModeGetRefreshRate(currentMode));
     CGDisplayModeRelease(currentMode);
+    return returncode;
+}
+
+unsigned int listMaxSupported(CGDirectDisplayID display, int displayNum) {
+    unsigned int returncode = 1;
+    CGDisplayModeRef maxSupportedMode = CGDisplayCopyDisplayMode(display);
+
+    CFStringRef keys[1] = { kCGDisplayShowDuplicateLowResolutionModes };
+    CFBooleanRef values[1] = { kCFBooleanTrue };
+    CFDictionaryRef options = CFDictionaryCreate(
+        kCFAllocatorDefault, (const void**) keys, (const void**) values, 1,
+        &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
+    CFArrayRef allModes = CGDisplayCopyAllDisplayModes(display, options);
+    if (allModes == NULL) {
+        NSLog(CFSTR("Error: failed trying to look up modes for display %u"), displayNum);
+    }
+
+    CFIndex displayModeCount = CFArrayGetCount(allModes);
+    for (int i = 0; i < displayModeCount; ++i) {
+        CGDisplayModeRef mode = (CGDisplayModeRef)CFArrayGetValueAtIndex(allModes, i);
+        CFComparisonResult result = _compareCFDisplayModes(mode, maxSupportedMode, NULL);
+        if (result == kCFCompareGreaterThan) {
+            maxSupportedMode = CGDisplayModeRetain(mode);
+        }
+    }
+
+    NSLog(CFSTR("Display %d: %ux%ux%u@%.0f"),
+           displayNum,
+           CGDisplayModeGetWidth(maxSupportedMode),
+           CGDisplayModeGetHeight(maxSupportedMode),
+           bitDepth(maxSupportedMode),
+           CGDisplayModeGetRefreshRate(maxSupportedMode));
+
+    CFRelease(allModes);
+    CFRelease(options);
+    CGDisplayModeRelease(maxSupportedMode);
     return returncode;
 }
 
@@ -155,7 +200,7 @@ unsigned int listAvailableModes(CGDirectDisplayID display, int displayNum) {
         CFRangeMake(0, CFArrayGetCount(allModesSorted)),
         (CFComparatorFunction) _compareCFDisplayModes,
         NULL
-    ); 
+    );
 
 #ifndef LIST_DEBUG
     if(displayNum != 0)
@@ -226,6 +271,9 @@ unsigned int listAvailableModes(CGDirectDisplayID display, int displayNum) {
                 ioflags & kDisplayModeValidForMirroringFlag ?1:0 );
 #endif
     }
+
+    if (numModes % MODES_PER_LINE)
+        printf("\n");
 
     CFRelease(allModes);
     CFRelease(allModesSorted);
