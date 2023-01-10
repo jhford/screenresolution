@@ -70,6 +70,12 @@ int main(int argc, const char *argv[]) {
             return 1;
         }
 
+        if (strcmp(argv[1], "help") == 0 || strcmp(argv[1], "?") == 0) {
+	    printf("Usage: Run screenreader with one of the following: get, list, or set [resolution].\n");
+        return(0);
+        }
+
+
         // This loop should probably be in another function.
         for (d = 0; d < displayCount && keepgoing; d++) {
             if (strcmp(argv[1], "get") == 0) {
@@ -111,7 +117,7 @@ int main(int argc, const char *argv[]) {
         free(activeDisplays);
         activeDisplays = NULL;
     } else {
-        NSLog(CFSTR("%s"), "Incorrect command line");
+        NSLog(CFSTR("%s"), "Invalid command. Run screenreader with get, list, or set [resolution].");
         exitcode++;
     }
     return exitcode > 0;
