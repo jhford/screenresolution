@@ -136,7 +136,12 @@ unsigned int listAvailableModes(CGDirectDisplayID display, int displayNum) {
     int numModes = 0;
     int i;
 
-    CFArrayRef allModes = CGDisplayCopyAllDisplayModes(display, NULL);
+    int value = 1;
+    CFNumberRef number = CFNumberCreate( kCFAllocatorDefault, kCFNumberIntType, &value );
+    CFStringRef key = kCGDisplayShowDuplicateLowResolutionModes;
+    CFDictionaryRef options = CFDictionaryCreate( kCFAllocatorDefault, (const void **)&key, (const void **)&number, 1, NULL, NULL );
+
+    CFArrayRef allModes = CGDisplayCopyAllDisplayModes(display, options);
     if (allModes == NULL) {
         returncode = 0;
     }
@@ -149,6 +154,9 @@ unsigned int listAvailableModes(CGDirectDisplayID display, int displayNum) {
                                           numModes,
                                           allModes
                                         );
+
+    CFRelease(number);
+    CFRelease(options);
 
     CFArraySortValues(
         allModesSorted,
@@ -186,7 +194,7 @@ unsigned int listAvailableModes(CGDirectDisplayID display, int displayNum) {
         }
 
         char modestr [50];
-        sprintf(modestr, "%4lux%4lux%lu@%.0f",
+        sprintf(modestr, "%lux%lux%lu@%.0f",
                CGDisplayModeGetWidth(mode),
                CGDisplayModeGetHeight(mode),
                bitDepth(mode),
