@@ -136,11 +136,8 @@ unsigned int parseStringConfig(const char *string, struct config *out) {
     return rc;
 }
 
-CFComparisonResult _compareCFDisplayModes (CGDisplayModeRef *mode1Ptr, CGDisplayModeRef *mode2Ptr, void *context)
+CFComparisonResult _compareCFDisplayModes (CGDisplayModeRef mode1, CGDisplayModeRef mode2, void *context)
 {
-    CGDisplayModeRef mode1 = (CGDisplayModeRef)mode1Ptr;
-    CGDisplayModeRef mode2 = (CGDisplayModeRef)mode2Ptr;
-
     size_t width1 = CGDisplayModeGetWidth(mode1);
     size_t width2 = CGDisplayModeGetWidth(mode2);
     
